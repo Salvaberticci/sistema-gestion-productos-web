@@ -1,4 +1,4 @@
-?php
+<?php
 require_once __DIR__ . '/../../includes/auth.php';
 requireLogin();
 require_once __DIR__ . '/../../assets/vendor/fpdf/fpdf.php';
@@ -19,62 +19,33 @@ if (!$p) {
 
 $rate = getExchangeRate();
 $price_bs = $p['pventa'] * $rate;
+$product_name = utf8_decode($p['referencia']); // FPDF requiere ISO-8859-1 para fuentes estándar
 
-// Configuración de ticket de 57mm (aprox 2.24 pulgadas)
-// FPDF utiliza mm por defecto
-$width = 57;
-$height = 100; // Altura dinámica o fija? Usaremos 80-100 para un ticket estándar
-
-// Crear PDF con tamaño personalizado
-$pdf = new FPDF('P', 'mm', [$width, $height]);
-$pdf->SetMargins(2, 5, 2);
+// 1. Configuración de página exacta igual a Python (57mm x 80mm)
+$pdf = new FPDF('P', 'mm', [57, 80]);
 $pdf->AddPage();
+$pdf->SetMargins(5, 5, 5); // Márgenes de 5 a la izquierda, arriba y derecha
 $pdf->SetAutoPageBreak(false);
 
-// Logo (si existe)
-$logo_path = __DIR__ . '/../../assets/images/logo.png';
-if (file_exists($logo_path)) {
-    $pdf->Image($logo_path, ($width - 30) / 2, 5, 30);
-    $pdf->Ln(25); // Espacio después del logo
-} else {
-    $pdf->SetFont('Arial', 'B', 14);
-    $pdf->Cell(0, 10, 'EL REBUSQUE', 0, 1, 'C');
+// 2. Algoritmo de escalado de fuente para el NOMBRE (IDÉNTICO a Python)
+$font_size = 14;
+$pdf->SetFont('Helvetica', 'B', $font_size);
+
+// Reducir tamaño de fuente progresivamente si el texto excede el ancho útil (47mm)
+while ($pdf->GetStringWidth($product_name) > 47 && $font_size > 7) {
+    $font_size -= 0.5;
+    $pdf->SetFont('Helvetica', 'B', $font_size);
 }
 
-$pdf->SetFont('Arial', '', 8);
-$pdf->Cell(0, 4, date('d/m/Y H:i'), 0, 1, 'C');
-$pdf->Ln(2);
+$pdf->SetY(8);
+// Usamos MultiCell para permitir que el nombre ocupe múltiples líneas si es largo, alineado a la Izquierda ('L')
+$pdf->MultiCell(47, 5, $product_name, 0, 'L');
 
-// Separador
-$pdf->Cell(0, 0, '', 'T');
-$pdf->Ln(3);
+// 3. Dibujar el PRECIO
+$pdf->SetY($pdf->GetY() + 4);
+$pdf->SetFont('Helvetica', 'B', 18);
+$formatted_price = "Bs. " . number_format($price_bs, 2, '.', ',');
+$pdf->Cell(47, 10, $formatted_price, 0, 1, 'L');
 
-// Nombre del producto con auto-escalado
-$name = utf8_decode($p['referencia']);
-$fsize = 12;
-if (strlen($name) > 20) $fsize = 10;
-if (strlen($name) > 25) $fsize = 8;
-if (strlen($name) > 35) $fsize = 7;
-
-$pdf->SetFont('Arial', 'B', $fsize);
-$pdf->MultiCell(0, 5, $name, 0, 'C');
-$pdf->Ln(3);
-
-// Precio en Bolívares (Grande)
-$pdf->SetFont('Arial', 'B', 16);
-$pdf->Cell(0, 8, "Bs. " . number_format($price_bs, 2, '.', ','), 0, 1, 'C');
-
-// Ref USD (Pequeño)
-$pdf->SetFont('Arial', '', 9);
-$pdf->Cell(0, 5, "Ref: " . formatCurrency((float)$p['pventa']), 0, 1, 'C');
-
-$pdf->Ln(3);
-$pdf->Cell(0, 0, '', 'T');
-$pdf->Ln(2);
-
-// Footer
-$pdf->SetFont('Arial', 'I', 7);
-$pdf->MultiCell(0, 3, "Gracias por su compra\nValera, Edo. Trujillo", 0, 'C');
-
-// Output
+// Guardar archivo/Mostrar en el navegador
 $pdf->Output('I', 'ticket_' . $cod . '.pdf');

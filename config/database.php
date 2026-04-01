@@ -1,4 +1,4 @@
-?php
+<?php
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'el_rebusque_web');
 define('DB_USER', 'root');

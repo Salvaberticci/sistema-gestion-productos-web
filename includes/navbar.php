@@ -1,4 +1,4 @@
-?php $currentModule = $currentModule ?? ''; ?>
+<?php $currentModule = $currentModule ?? ''; ?>
 <div class="app-layout">
     <!-- Overlay para cerrar sidebar en movil -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>

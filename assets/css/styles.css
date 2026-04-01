@@ -820,3 +820,27 @@ img { max-width: 100%; height: auto; }
     gap: 15px;
     margin-top: 20px;
 }
+/* Estilos para filas interactivas */
+.data-table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.data-table tbody tr:hover {
+    background-color: rgba(56, 139, 253, 0.1) !important;
+}
+
+.btn-delete {
+    background-color: transparent;
+    color: #f85149;
+    border: 1px solid #30363d;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.btn-delete:hover {
+    background-color: #f85149;
+    color: white;
+    border-color: #f85149;
+}

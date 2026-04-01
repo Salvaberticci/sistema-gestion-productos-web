@@ -1,4 +1,4 @@
-?php
+<?php
 $type = 'Core';
 $name = 'Times-Bold';
 $up = -100;
