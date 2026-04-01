@@ -1,0 +1,12 @@
+﻿- [x] Módulo 1: Cimentación (Base, Auth, Dashboard)
+- [x] Módulo 2: Gestión de Usuarios y Roles
+- [x] Módulo 3: Inventario
+- [x] Módulo 4: Escáner de Código de Barras (Cámara)
+- [/] Módulo 5: Impresión de Tickets (PDF)
+    - [ ] Descargar librería FPDF
+    - [ ] Página de interfaz de impresión (`index.php`)
+    - [ ] Generador de PDF térmico 57mm (`generar_pdf.php`)
+    - [ ] Lógica de escalado de fuente automática
+- [ ] Módulo 6: Consulta Pública de Precios
+- [ ] Módulo 7: Estadísticas y Dashboard
+- [ ] Módulo 8: Configuración

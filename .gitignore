@@ -1,0 +1,8 @@
+﻿.env
+uploads/*
+!uploads/.gitkeep
+assets/images/products/*
+!assets/images/products/.gitkeep
+*.log
+.DS_Store
+Thumbs.db
