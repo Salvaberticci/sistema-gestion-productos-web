@@ -1,4 +1,4 @@
-﻿.env
+.env
 uploads/*
 !uploads/.gitkeep
 assets/images/products/*
@@ -6,3 +6,8 @@ assets/images/products/*
 *.log
 .DS_Store
 Thumbs.db
+vendor/
+debug_stats.php
+composer.phar
+.idea/
+.vscode/

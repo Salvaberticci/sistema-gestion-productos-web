@@ -13,6 +13,9 @@
             <a href="<?= APP_URL ?>/modules/dashboard/index.php" class="nav-item <?= $currentModule === 'dashboard' ? 'active' : '' ?>">
                 <span class="nav-icon">📊</span><span class="nav-text">Dashboard</span>
             </a>
+            <a href="<?= APP_URL ?>/modules/ventas/index.php" class="nav-item <?= $currentModule === 'ventas' ? 'active' : '' ?>">
+                <span class="nav-icon">🛒</span><span class="nav-text">Órdenes de Venta</span>
+            </a>
             <a href="<?= APP_URL ?>/modules/inventario/index.php" class="nav-item <?= $currentModule === 'inventario' ? 'active' : '' ?>">
                 <span class="nav-icon">📦</span><span class="nav-text">Inventario</span>
             </a>
@@ -32,6 +35,9 @@
             </a>
             <a href="<?= APP_URL ?>/modules/estadisticas/index.php" class="nav-item <?= $currentModule === 'estadisticas' ? 'active' : '' ?>">
                 <span class="nav-icon">📈</span><span class="nav-text">Estadísticas</span>
+            </a>
+            <a href="<?= APP_URL ?>/modules/reportes/index.php" class="nav-item <?= $currentModule === 'reportes' ? 'active' : '' ?>">
+                <span class="nav-icon">📜</span><span class="nav-text">Reportes y Cierres</span>
             </a>
             <a href="<?= APP_URL ?>/modules/configuracion/index.php" class="nav-item <?= $currentModule === 'configuracion' ? 'active' : '' ?>">
                 <span class="nav-icon">⚙️</span><span class="nav-text">Configuración</span>

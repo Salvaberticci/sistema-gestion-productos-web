@@ -107,8 +107,66 @@ require_once __DIR__ . '/../../includes/navbar.php';
             <label class="form-label">Imagen (Opcional)</label>
             <input type="file" name="image" class="form-input" accept="image/*">
         </div>
-        <button type="submit" class="btn btn-primary btn-lg mt-2">Guardar Cambios</button>
+        <div style="display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap;">
+            <button type="submit" class="btn btn-primary btn-lg flex-1">Guardar Cambios</button>
+            <button type="button" class="btn btn-danger btn-lg flex-1" onclick="confirmarEliminar()">🗑️ Eliminar</button>
+        </div>
     </form>
 </div>
+
+<script>
+function confirmarEliminar() {
+    Swal.fire({
+        title: '¿Eliminar producto?',
+        html: `¿Seguro que deseas eliminar <b><?= addslashes(htmlspecialchars($p['referencia'])) ?></b>?<br><small style="color:var(--color-text-dim)">Esta acción no se puede deshacer.</small>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#f85149',
+        cancelButtonColor: '#30363d',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        background: '#0D1117',
+        color: '#ffffff'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('eliminar.php?id=<?= urlencode($id) ?>&ajax=1')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: '¡Eliminado!',
+                            text: 'El producto ha sido borrado exitosamente.',
+                            icon: 'success',
+                            background: '#0D1117',
+                            color: '#ffffff',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = 'index.php';
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.error || 'No se pudo eliminar el producto.',
+                            icon: 'error',
+                            background: '#0D1117',
+                            color: '#ffffff'
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire({
+                        title: 'Error', 
+                        text: 'Hubo un problema con la conexión de red.', 
+                        icon: 'error',
+                        background: '#0D1117',
+                        color: '#ffffff'
+                    });
+                });
+        }
+    });
+}
+</script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

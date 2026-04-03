@@ -22,13 +22,16 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nombre = trim($_POST['nombre_completo'] ?? '');
+    $nombre_input = trim($_POST['nombre'] ?? '');
+    $apellido_input = trim($_POST['apellido'] ?? '');
+    $nombre_completo_new = $nombre_input . ' ' . $apellido_input;
+    
     $username = trim($_POST['username'] ?? '');
     $pass = $_POST['password'] ?? '';
     $rol = $_POST['rol'] ?? 'empleado';
 
-    if (empty($nombre) || empty($username)) {
-        $error = 'Nombre y Usuario son obligatorios.';
+    if (empty($nombre_input) || empty($apellido_input) || empty($username)) {
+        $error = 'Nombre, Apellido y Usuario son obligatorios.';
     } else {
         // Verificar unicidad de username
         $stmt_check = $db->prepare("SELECT id FROM usuarios WHERE username = ? AND id != ?");
@@ -40,15 +43,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!empty($pass)) {
                     $hash = password_hash($pass, PASSWORD_DEFAULT);
                     $stmt_upd = $db->prepare("UPDATE usuarios SET username = ?, password = ?, nombre_completo = ?, rol = ? WHERE id = ?");
-                    $stmt_upd->execute([$username, $hash, $nombre, $rol, $id]);
+                    $stmt_upd->execute([$username, $hash, $nombre_completo_new, $rol, $id]);
                 } else {
                     $stmt_upd = $db->prepare("UPDATE usuarios SET username = ?, nombre_completo = ?, rol = ? WHERE id = ?");
-                    $stmt_upd->execute([$username, $nombre, $rol, $id]);
+                    $stmt_upd->execute([$username, $nombre_completo_new, $rol, $id]);
                 }
                 
                 // Actualizar sesion si es el mismo usuario
                 if ($id == $_SESSION['user_id']) {
-                    $_SESSION['user_name'] = $nombre;
+                    $_SESSION['user_name'] = $nombre_completo_new;
                     $_SESSION['user_username'] = $username;
                     $_SESSION['user_rol'] = $rol;
                 }
@@ -87,9 +90,20 @@ require_once __DIR__ . '/../../includes/navbar.php';
     <?php endif; ?>
 
     <form method="POST" action="">
-        <div class="form-group">
-            <label class="form-label">Nombre Completo</label>
-            <input type="text" name="nombre_completo" class="form-input" required value="<?= htmlspecialchars($u['nombre_completo']) ?>">
+        <?php 
+            $partes_nombre = explode(' ', $u['nombre_completo'], 2);
+            $n_nombre = $partes_nombre[0] ?? '';
+            $n_apellido = $partes_nombre[1] ?? '';
+        ?>
+        <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="form-group">
+                <label class="form-label">Nombre</label>
+                <input type="text" name="nombre" class="form-input" required value="<?= htmlspecialchars($n_nombre) ?>">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Apellido</label>
+                <input type="text" name="apellido" class="form-input" required value="<?= htmlspecialchars($n_apellido) ?>">
+            </div>
         </div>
         
         <div class="form-group">

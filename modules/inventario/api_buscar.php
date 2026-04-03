@@ -10,6 +10,16 @@ $db = getDB();
 if (empty($q)) {
     $stmt = $db->query("SELECT * FROM productos ORDER BY created_at DESC LIMIT 50");
 } else {
+    // 1. Aumentar métrica del usuario (Trazabilidad)
+    if (isset($_SESSION['user_id'])) {
+        $stmt_track = $db->prepare("UPDATE usuarios SET consultas_realizadas = consultas_realizadas + 1 WHERE id = ?");
+        $stmt_track->execute([$_SESSION['user_id']]);
+    }
+    
+    // 2. Aumentar popularidad del producto si escanean código exacto
+    $stmt_prod_track = $db->prepare("UPDATE productos SET busquedas = busquedas + 1 WHERE codigop = ?");
+    $stmt_prod_track->execute([$q]);
+
     $stmt = $db->prepare("SELECT * FROM productos WHERE codigop LIKE ? OR referencia LIKE ? ORDER BY busquedas DESC LIMIT 50");
     $stmt->execute(["%$q%", "%$q%"]);
 }

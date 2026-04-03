@@ -61,6 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${p.formatted_usd}
                     <div class="product-card-stock">${p.formatted_bs}</div>
                 </div>
+                <div style="display:flex; align-items:center; margin-left:5px;">
+                    <button class="btn btn-danger" style="padding:0 12px; height:38px; border:none; border-radius:8px; background:rgba(248,81,73,0.1);" onclick="event.stopPropagation(); deleteProduct('${p.codigop}', '${p.referencia.replace(/'/g, "\\'")}')" title="Eliminar">🗑️</button>
+                </div>
             `;
             mobileCards.appendChild(card);
         });

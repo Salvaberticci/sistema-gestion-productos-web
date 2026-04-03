@@ -218,9 +218,9 @@ img { max-width: 100%; height: auto; }
     color: #0B0E14;
 }
 
-.btn-sm { height: 38px; padding: 0 16px; font-size: 0.8125rem; }
+.btn-sm { height: 38px; padding: 0 16px; font-size: 0.8125rem; width: auto !important; }
 .btn-lg { height: 56px; font-size: 1.0625rem; }
-.btn-block { width: 100%; }
+.btn-block { width: 100% !important; }
 
 /* ===== APP LAYOUT ===== */
 .app-layout {
@@ -391,14 +391,19 @@ img { max-width: 100%; height: auto; }
 /* ===== MAIN CONTENT ===== */
 .main-content {
     flex: 1;
+    min-width: 0;
+    max-width: 100vw;
     min-height: 100vh;
     padding-bottom: var(--bottom-nav-height);
+    overflow-x: hidden;
 }
 
 .content-wrapper {
     padding: 20px;
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
+    min-width: 0;
 }
 
 /* ===== CARDS ===== */
@@ -409,6 +414,8 @@ img { max-width: 100%; height: auto; }
     padding: 20px;
     margin-bottom: 15px;
     transition: var(--transition);
+    min-width: 0;
+    max-width: 100%;
 }
 
 .card:hover { border-color: rgba(88,166,255,0.2); }
@@ -440,6 +447,8 @@ img { max-width: 100%; height: auto; }
     border-radius: var(--radius-card);
     padding: 18px 15px;
     text-align: center;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .stat-icon { font-size: 1.75rem; margin-bottom: 8px; }
@@ -512,9 +521,13 @@ img { max-width: 100%; height: auto; }
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--color-text-main);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.3;
+    margin-bottom: 2px;
 }
 
 .product-card-code {
@@ -529,6 +542,7 @@ img { max-width: 100%; height: auto; }
     color: var(--color-accent);
     text-align: right;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .product-card-stock {
@@ -631,6 +645,18 @@ img { max-width: 100%; height: auto; }
     flex-wrap: wrap;
     gap: 15px;
     margin-bottom: 25px;
+    min-width: 0;
+}
+
+@media (max-width: 500px) {
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .page-header .btn {
+        width: 100% !important;
+        justify-content: center;
+    }
 }
 
 .page-title {
@@ -710,6 +736,9 @@ img { max-width: 100%; height: auto; }
 .justify-between { justify-content: space-between; }
 .flex-1 { flex: 1; }
 .hidden { display: none !important; }
+.p-0 { padding: 0 !important; }
+.p-2 { padding: 10px !important; }
+.p-3 { padding: 15px !important; }
 
 /* ================================================================
    DESKTOP OVERRIDES (768px+)

@@ -6,13 +6,15 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nombre = trim($_POST['nombre_completo'] ?? '');
+    $nombre = trim($_POST['nombre'] ?? '');
+    $apellido = trim($_POST['apellido'] ?? '');
+    $nombre_completo = $nombre . ' ' . $apellido;
     $user = trim($_POST['username'] ?? '');
     $pass = $_POST['password'] ?? '';
     $rol = $_POST['rol'] ?? 'empleado';
 
-    if (empty($nombre) || empty($user) || empty($pass)) {
-        $error = 'Por favor complete todos los campos requeridos.';
+    if (empty($nombre) || empty($apellido) || empty($user) || empty($pass)) {
+        $error = 'Por favor complete todos los campos requeridos (Nombre, Apellido, Usuario y Contraseña).';
     } else {
         $db = getDB();
         
@@ -25,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $hash = password_hash($pass, PASSWORD_DEFAULT);
                 $stmt = $db->prepare("INSERT INTO usuarios (username, password, nombre_completo, rol) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$user, $hash, $nombre, $rol]);
+                $stmt->execute([$user, $hash, $nombre_completo, $rol]);
                 $success = 'Usuario creado con éxito.';
             } catch (Exception $e) {
                 $error = 'Error al crear el usuario: ' . $e->getMessage();
@@ -57,9 +59,15 @@ require_once __DIR__ . '/../../includes/navbar.php';
     <?php endif; ?>
 
     <form method="POST" action="">
-        <div class="form-group">
-            <label class="form-label">Nombre Completo</label>
-            <input type="text" name="nombre_completo" class="form-input" placeholder="Nombre real del empleado" required value="<?= htmlspecialchars($_POST['nombre_completo'] ?? '') ?>">
+        <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="form-group">
+                <label class="form-label">Nombre</label>
+                <input type="text" name="nombre" class="form-input" placeholder="Nombre" required value="<?= htmlspecialchars($_POST['nombre'] ?? '') ?>">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Apellido</label>
+                <input type="text" name="apellido" class="form-input" placeholder="Apellido" required value="<?= htmlspecialchars($_POST['apellido'] ?? '') ?>">
+            </div>
         </div>
         
         <div class="form-group">
