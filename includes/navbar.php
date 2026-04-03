@@ -10,21 +10,31 @@
             <span class="sidebar-title">ADMIN PANEL</span>
         </div>
         <nav class="sidebar-nav">
+<?php if (isAdmin()): ?>
             <a href="<?= APP_URL ?>/modules/dashboard/index.php" class="nav-item <?= $currentModule === 'dashboard' ? 'active' : '' ?>">
                 <span class="nav-icon">📊</span><span class="nav-text">Dashboard</span>
             </a>
+            <?php endif; ?>
+
             <a href="<?= APP_URL ?>/modules/ventas/index.php" class="nav-item <?= $currentModule === 'ventas' ? 'active' : '' ?>">
                 <span class="nav-icon">🛒</span><span class="nav-text">Órdenes de Venta</span>
             </a>
+
+            <?php if (isAdmin()): ?>
             <a href="<?= APP_URL ?>/modules/inventario/index.php" class="nav-item <?= $currentModule === 'inventario' ? 'active' : '' ?>">
                 <span class="nav-icon">📦</span><span class="nav-text">Inventario</span>
             </a>
+            <?php endif; ?>
+
             <a href="<?= APP_URL ?>/modules/scanner/index.php" class="nav-item <?= $currentModule === 'scanner' ? 'active' : '' ?>">
                 <span class="nav-icon">📸</span><span class="nav-text">Escáner</span>
             </a>
+
+            <?php if (isAdmin()): ?>
             <a href="<?= APP_URL ?>/modules/impresion/index.php" class="nav-item <?= $currentModule === 'impresion' ? 'active' : '' ?>">
                 <span class="nav-icon">🖨️</span><span class="nav-text">Impresión</span>
             </a>
+            <?php endif; ?>
             <a href="<?= APP_URL ?>/modules/consulta/index.php" class="nav-item <?= $currentModule === 'consulta' ? 'active' : '' ?>">
                 <span class="nav-icon">🔍</span><span class="nav-text">Consulta</span>
             </a>

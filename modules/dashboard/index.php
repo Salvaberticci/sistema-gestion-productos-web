@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../includes/auth.php';
-requireLogin();
+requireAdmin();
 
 // Forzar que el navegador no cachee esta página para ver cambios en tiempo real
 header("Cache-Control: no-cache, no-store, must-revalidate");

@@ -18,7 +18,7 @@ function requireLogin(): void {
 function requireAdmin(): void {
     requireLogin();
     if ($_SESSION['user_rol'] !== 'admin') {
-        header('Location: ' . APP_URL . '/modules/dashboard/index.php');
+        header('Location: ' . APP_URL . '/modules/ventas/index.php');
         exit;
     }
 }
