@@ -67,6 +67,25 @@ require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/navbar.php';
 ?>
 
+<!-- Overlay de Carga -->
+<div id="loading-overlay" style="display:none; position:fixed; inset:0; background:rgba(11,14,20,0.8); z-index:9999; backdrop-filter:blur(5px); display:none; align-items:center; justify-content:center; flex-direction:column; gap:15px;">
+    <div class="spinner"></div>
+    <div style="color:var(--color-accent); font-weight:700; letter-spacing:1px; animation: pulse 1.5s infinite;">GENERANDO REPORTE...</div>
+</div>
+
+<style>
+    @keyframes pulse { 0%, 100% { opacity:1; } 50% { opacity:0.5; } }
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(88,166,255,0.1);
+        border-left-color: var(--color-accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
 <div class="page-header">
     <h2 class="page-title">📊 Reportes y Cierres</h2>
     <div class="flex items-center gap-2">
@@ -75,20 +94,46 @@ require_once __DIR__ . '/../../includes/navbar.php';
 </div>
 
 <!-- Filtros de Fecha -->
-<div class="card mb-4">
-    <form method="GET" class="flex flex-wrap gap-4 items-end">
-        <div class="form-group mb-0" style="flex:1; min-width:150px;">
-            <label class="form-label">Desde</label>
-            <input type="date" name="fecha_desde" class="form-input" value="<?= $fecha_desde ?>">
+<div class="card mb-4 report-section">
+    <form method="GET" class="report-filter-form">
+        <div class="filter-group">
+            <div class="form-group">
+                <label class="form-label">Desde</label>
+                <input type="date" name="fecha_desde" class="form-input" value="<?= $fecha_desde ?>">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Hasta</label>
+                <input type="date" name="fecha_hasta" class="form-input" value="<?= $fecha_hasta ?>">
+            </div>
         </div>
-        <div class="form-group mb-0" style="flex:1; min-width:150px;">
-            <label class="form-label">Hasta</label>
-            <input type="date" name="fecha_hasta" class="form-input" value="<?= $fecha_hasta ?>">
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary" onclick="showLoading()">📊 Ver Reporte</button>
+            <a href="index.php" class="btn btn-secondary" onclick="showLoading()">🔄 Hoy</a>
+            <button type="button" class="btn btn-gold" onclick="exportarPDF()" title="Exportar este periodo a PDF">
+                📄 Exportar PDF
+            </button>
         </div>
-        <button type="submit" class="btn btn-primary" style="height:42px;">Ver Reporte</button>
-        <a href="index.php" class="btn btn-secondary" style="height:42px; display:flex; align-items:center;">Hoy</a>
     </form>
 </div>
+
+<style>
+    .report-filter-form { display: flex; flex-direction: column; gap: 15px; }
+    .filter-group { display: flex; gap: 15px; flex-wrap: wrap; }
+    .filter-group .form-group { flex: 1; min-width: 140px; margin-bottom: 0; }
+    .filter-actions { display: flex; gap: 10px; }
+    .filter-actions .btn { flex: 1; height: 52px; font-size: 0.95rem; }
+
+    @media (min-width: 768px) {
+        .report-filter-form { flex-direction: row; align-items: flex-end; }
+        .filter-group { flex: 1; }
+        .filter-actions { flex-shrink: 0; }
+        .filter-actions .btn { width: auto; flex: none; }
+    }
+    
+    @media (max-width: 480px) {
+        .filter-actions { flex-direction: column; }
+    }
+</style>
 
 <!-- Resumen de Corto/Cierre -->
 <div class="stats-grid mb-4">
@@ -117,11 +162,20 @@ require_once __DIR__ . '/../../includes/navbar.php';
 </div>
 
 <style>
-    .report-section { padding: 20px; }
+    .report-section { padding: 15px; }
     .data-table th, .data-table td { padding: 12px 15px; }
+    
+    /* Mejoras de flujo en móvil */
     @media (max-width: 767px) {
         .desktop-only { display: none !important; }
         .mobile-only { display: block !important; }
+        .stats-grid { gap: 10px; }
+        .stat-card { padding: 15px 10px; }
+        .report-section { padding: 10px; }
+        .page-title { font-size: 1.35rem; }
+        .card-header { padding: 12px 0; }
+        .product-card { padding: 15px !important; flex-direction: column; align-items: stretch !important; }
+        .product-card-title { font-size: 0.875rem !important; word-break: break-word; }
     }
     @media (min-width: 768px) {
         .mobile-only { display: none !important; }
@@ -134,8 +188,9 @@ require_once __DIR__ . '/../../includes/navbar.php';
         <div class="card-header">
             <h3 class="card-title" style="padding-left:15px;">🏆 Top Productos (Más Vendidos)</h3>
         </div>
-        <div class="table-responsive report-section" style="padding-top:0;">
-            <table class="data-table">
+        <div class="report-section" style="padding-top:0;">
+            <!-- Vista Desktop -->
+            <table class="data-table desktop-only">
                 <thead>
                     <tr>
                         <th>Producto</th>
@@ -155,6 +210,23 @@ require_once __DIR__ . '/../../includes/navbar.php';
                     <?php endforeach; endif; ?>
                 </tbody>
             </table>
+
+            <!-- Vista Móvil -->
+            <div class="mobile-only">
+                <?php if(empty($top_productos)): ?>
+                    <div class="text-center text-dim p-2">Sin datos</div>
+                <?php else: foreach($top_productos as $p): ?>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--color-border);">
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-weight:700; font-size:0.85rem; word-break:break-word;"><?= htmlspecialchars($p['referencia']) ?></div>
+                            <div style="font-size:0.7rem; color:var(--color-text-dim);">Ventas: <?= (int)$p['total_vendido'] ?></div>
+                        </div>
+                        <div style="font-weight:800; color:var(--color-accent); font-size:0.9rem; margin-left:10px;">
+                            <?= formatCurrency((float)$p['total_dinero']) ?>
+                        </div>
+                    </div>
+                <?php endforeach; endif; ?>
+            </div>
         </div>
     </div>
 
@@ -163,8 +235,9 @@ require_once __DIR__ . '/../../includes/navbar.php';
         <div class="card-header">
             <h3 class="card-title" style="padding-left:15px;">👤 Top Clientes Frecuentes</h3>
         </div>
-        <div class="table-responsive report-section" style="padding-top:0;">
-            <table class="data-table">
+        <div class="report-section" style="padding-top:0;">
+            <!-- Vista Desktop -->
+            <table class="data-table desktop-only">
                 <thead>
                     <tr>
                         <th>Cliente</th>
@@ -184,6 +257,23 @@ require_once __DIR__ . '/../../includes/navbar.php';
                     <?php endforeach; endif; ?>
                 </tbody>
             </table>
+
+            <!-- Vista Móvil -->
+            <div class="mobile-only">
+                <?php if(empty($top_clientes)): ?>
+                    <div class="text-center text-dim p-2">Sin datos</div>
+                <?php else: foreach($top_clientes as $c): ?>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--color-border);">
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-weight:700; font-size:0.85rem; word-break:break-word;"><?= strtoupper(htmlspecialchars($c['nombre'].' '.$c['apellido'])) ?></div>
+                            <div style="font-size:0.7rem; color:var(--color-text-dim);">Tickets: <?= $c['compras_realizadas'] ?></div>
+                        </div>
+                        <div style="font-weight:800; color:var(--color-gold); font-size:0.9rem; margin-left:10px;">
+                            <?= formatCurrency((float)$c['total_generado']) ?>
+                        </div>
+                    </div>
+                <?php endforeach; endif; ?>
+            </div>
         </div>
     </div>
 </div>
@@ -238,34 +328,76 @@ require_once __DIR__ . '/../../includes/navbar.php';
         </table>
     </div>
 
-    <!-- Vista Móvil (Tarjetas) -->
+    <!-- Vista Móvil (Tarjetas de Alta Densidad) -->
     <div class="mobile-only report-section" style="padding-top:0;">
         <?php if(empty($historial)): ?>
             <div class="text-center p-4 text-dim">No hay órdenes.</div>
         <?php else: foreach($historial as $h): ?>
-            <div class="product-card" style="margin-bottom:10px; padding:15px; border:1px solid var(--color-border); border-radius:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:start; width:100%;">
-                    <div>
-                        <div style="font-weight:bold; font-size:0.95rem;">
-                            <span class="text-dim">#<?= $h['id'] ?></span> <?= htmlspecialchars($h['nombre'].' '.$h['apellido']) ?>
-                        </div>
-                        <div style="font-size:0.75rem; color:var(--color-text-dim); margin-top:4px;">
-                            Vendedor: <?= htmlspecialchars($h['vendedor']) ?> • <?= date('d/m/y H:i', strtotime($h['created_at'])) ?>
-                        </div>
-                    </div>
+            <div class="product-card" style="margin-bottom:15px; border:1px solid var(--color-border); border-radius:12px; background: rgba(255,255,255,0.02); overflow:hidden;">
+                <!-- Cabecera de Tarjeta -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-size:0.7rem; font-weight:800; color:var(--color-text-dim);">ORDEN #<?= $h['id'] ?></span>
                     <?php if ($h['estado'] === 'completado'): ?>
-                        <span class="badge-active" style="background:var(--color-success); padding:2px 8px; font-size:0.65rem;">OK</span>
+                        <span style="background:var(--color-success); color:#fff; padding:2px 8px; font-size:0.6rem; border-radius:4px; font-weight:bold;">APROBADO</span>
                     <?php else: ?>
-                        <span class="badge-dim" style="background:var(--color-danger); padding:2px 8px; font-size:0.65rem;">NO</span>
+                        <span style="background:var(--color-danger); color:#fff; padding:2px 8px; font-size:0.6rem; border-radius:4px; font-weight:bold;">RECHAZADO</span>
                     <?php endif; ?>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; border-top:1px dashed var(--color-border); padding-top:10px;">
-                    <div class="fw-bold text-accent" style="font-size:1.1rem;"><?= formatCurrency((float)$h['total_usd']) ?></div>
-                    <a href="ticket.php?id=<?= $h['id'] ?>" target="_blank" class="btn btn-primary btn-sm">📄 Ver Ticket</a>
+
+                <!-- Info de Cliente -->
+                <div class="product-card-title" style="font-weight:800; line-height:1.2; font-size:1rem; margin-bottom:5px;">
+                    <?= strtoupper(htmlspecialchars($h['nombre'].' '.$h['apellido'])) ?>
+                </div>
+                
+                <div style="font-size:0.75rem; color:var(--color-text-dim);">
+                    Vendedor: <b><?= htmlspecialchars($h['vendedor']) ?></b>
+                </div>
+                <div style="font-size:0.7rem; color:var(--color-text-dim); margin-top:2px;">
+                    Fecha: <?= date('d/m/y H:i', strtotime($h['created_at'])) ?>
+                </div>
+                
+                <!-- Área de Total y Acción (Vertical en Móvil) -->
+                <div style="margin-top:15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius:8px; border: 1px solid rgba(88,166,255,0.1);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <span style="font-size:0.75rem; color:var(--color-text-dim);">Monto Total:</span>
+                        <span style="font-size:1.15rem; font-weight:800; color:var(--color-accent);"><?= formatCurrency((float)$h['total_usd']) ?></span>
+                    </div>
+                    <a href="ticket.php?id=<?= $h['id'] ?>" target="_blank" class="btn btn-primary" style="width:100%; height:42px; font-size:0.875rem;">
+                        📄 Ver Ticket PDF
+                    </a>
                 </div>
             </div>
         <?php endforeach; endif; ?>
     </div>
 </div>
+
+<script>
+function showLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.style.display = 'flex';
+}
+
+function exportarPDF() {
+    const desde = "<?= $fecha_desde ?>";
+    const hasta = "<?= $fecha_hasta ?>";
+    
+    showLoading();
+    
+    // Abrir en nueva pestaña
+    window.open(`exportar_pdf.php?fecha_desde=${desde}&fecha_hasta=${hasta}`, '_blank');
+    
+    // Ocultar loading después de un momento (la descarga ocurre por separado)
+    setTimeout(() => {
+        document.getElementById('loading-overlay').style.display = 'none';
+    }, 2000);
+}
+
+// Ocultar loading si la página se carga de nuevo (cache/back)
+window.onpageshow = function(event) {
+    if (event.persisted) {
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
+};
+</script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

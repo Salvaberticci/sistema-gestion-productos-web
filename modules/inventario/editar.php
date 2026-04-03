@@ -45,6 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
                     $image_path = 'assets/images/products/' . $filename;
                 }
+            } else {
+                // Nueva Lógica: Quitar Imagen si se solicita
+                if (isset($_POST['remove_image']) && $_POST['remove_image'] === '1') {
+                    $image_path = null;
+                }
             }
 
             try {
@@ -79,14 +84,19 @@ require_once __DIR__ . '/../../includes/navbar.php';
     <?php if ($success): ?><div style="background:var(--color-success); color:#fff; padding:12px; border-radius:10px; margin-bottom:20px; text-align:center;"><?= htmlspecialchars($success) ?></div><?php endif; ?>
 
     <form method="POST" action="?id=<?= htmlspecialchars($id) ?>" enctype="multipart/form-data">
+        <input type="hidden" name="remove_image" id="remove_image" value="0">
         <div class="form-group">
             <label class="form-label">Código de Barras</label>
             <input type="text" name="codigop" class="form-input" required value="<?= htmlspecialchars($p['codigop']) ?>">
             <small style="color:var(--color-text-dim); display:block; margin-top:4px;">Nota: Si cambias el código, se actualizará el identificador único del producto.</small>
         </div>
         <?php if ($p['image_path']): ?>
-            <div style="text-align:center; margin-bottom:15px;">
-                <img src="<?= APP_URL . '/' . $p['image_path'] ?>" style="max-width:150px; border-radius:10px; border:1px solid var(--color-border);">
+            <div style="text-align:center; margin-bottom:20px;">
+                <div id="currentImageContainer" style="position:relative; display:inline-block;">
+                    <img src="<?= APP_URL . '/' . $p['image_path'] ?>" style="max-width:150px; border-radius:10px; border:1px solid var(--color-border); transition: all 0.3s ease;">
+                    <button type="button" onclick="quitarImagen()" class="btn btn-danger" style="position:absolute; top:-10px; right:-10px; padding:0; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow:0 4px 10px rgba(0,0,0,0.5);" title="Quitar Imagen">×</button>
+                    <p id="removeMsg" style="display:none; color:var(--color-danger); font-size:0.75rem; font-weight:bold; margin-top:8px;">⚠️ Imagen marcada para eliminar</p>
+                </div>
             </div>
         <?php endif; ?>
         <div class="form-group">
@@ -115,6 +125,16 @@ require_once __DIR__ . '/../../includes/navbar.php';
 </div>
 
 <script>
+function quitarImagen() {
+    document.getElementById('remove_image').value = '1';
+    const img = document.querySelector('#currentImageContainer img');
+    img.style.opacity = '0.3';
+    img.style.filter = 'grayscale(100%) blur(2px)';
+    document.getElementById('removeMsg').style.display = 'block';
+    // Ocultar botón de quitar
+    document.querySelector('#currentImageContainer button').style.display = 'none';
+}
+
 function confirmarEliminar() {
     Swal.fire({
         title: '¿Eliminar producto?',

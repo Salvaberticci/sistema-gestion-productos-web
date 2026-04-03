@@ -39,6 +39,9 @@
             <a href="<?= APP_URL ?>/modules/reportes/index.php" class="nav-item <?= $currentModule === 'reportes' ? 'active' : '' ?>">
                 <span class="nav-icon">📜</span><span class="nav-text">Reportes y Cierres</span>
             </a>
+            <a href="<?= APP_URL ?>/modules/sistema/index.php" class="nav-item <?= $currentModule === 'sistema' ? 'active' : '' ?>">
+                <span class="nav-icon">🔄</span><span class="nav-text">Sincronización</span>
+            </a>
             <a href="<?= APP_URL ?>/modules/configuracion/index.php" class="nav-item <?= $currentModule === 'configuracion' ? 'active' : '' ?>">
                 <span class="nav-icon">⚙️</span><span class="nav-text">Configuración</span>
             </a>
