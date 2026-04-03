@@ -21,6 +21,9 @@
             </a>
 
             <?php if (isAdmin()): ?>
+            <a href="<?= APP_URL ?>/modules/ventas_pendientes/index.php" class="nav-item <?= $currentModule === 'ventas_pendientes' ? 'active' : '' ?>">
+                <span class="nav-icon">🔍</span><span class="nav-text">Órdenes Pendientes</span>
+            </a>
             <a href="<?= APP_URL ?>/modules/inventario/index.php" class="nav-item <?= $currentModule === 'inventario' ? 'active' : '' ?>">
                 <span class="nav-icon">📦</span><span class="nav-text">Inventario</span>
             </a>
