@@ -1,4 +1,4 @@
-﻿// scanner.js - Escáner de código de barras con la cámara
+// scanner.js - Escáner de código de barras con la cámara
 
 document.addEventListener('DOMContentLoaded', () => {
     const scannerResult = document.getElementById('scannerResult');
@@ -35,8 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="flex-1 min-width-0">
                         <div class="text-dim mb-1" style="font-size:0.7rem; font-weight:700; letter-spacing:1px;">PRODUCTO DETECTADO</div>
                         <div style="font-size:1.125rem; font-weight:800; color:var(--color-text-main); margin-bottom:4px;">${p.referencia}</div>
-                        <div style="font-size:1.5rem; font-weight:800; color:var(--color-accent); line-height:1;">${p.formatted_usd} <span style="font-size:0.8rem; color:var(--color-text-dim);">USD</span></div>
-                        <div style="font-size:1.125rem; font-weight:700; color:var(--color-gold);">${p.formatted_bs} <span style="font-size:0.6rem;">BS.</span></div>
+                        <div style="font-size:1.25rem; font-weight:800; color:var(--color-gold); margin-top:5px; border-top:1px solid var(--color-border); padding-top:8px;">${p.formatted_bs} <span style="font-size:0.75rem;">BS.</span></div>
                     </div>
                 </div>
                 <div class="flex gap-2 mt-3">

@@ -1,4 +1,4 @@
-﻿// consulta.js - Lógica de la pantalla de consulta pública
+// consulta.js - Lógica de la pantalla de consulta pública
 
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('publicSearch');
@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${p.img_url ? `<img src="${p.img_url}" class="result-img">` : `<div class="result-img flex items-center justify-center" style="background:var(--color-surface); margin:0 auto 20px; font-size:4rem;">📦</div>`}
                 <div class="result-name">${p.referencia}</div>
                 <div class="result-price-bs">${p.formatted_bs} <span style="font-size:1.5rem;">BS.</span></div>
-                <div class="result-price-usd">Ref: ${p.formatted_usd} USD</div>
             </div>
         `;
         
