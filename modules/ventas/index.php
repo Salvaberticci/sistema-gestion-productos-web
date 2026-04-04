@@ -135,13 +135,11 @@ require_once __DIR__ . '/../../includes/navbar.php';
             </div>
 
             <div style="border-top: 1px solid var(--color-border); padding: 20px; background: rgba(0,0,0,0.2);">
-                <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
-                    <span style="color:var(--color-text-dim); font-weight: 600;">Total Bruto:</span>
-                    <span id="cartTotalUSD" style="font-size:1.8rem; font-weight:900; color: var(--color-success);">$ 0.00</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <span style="color:var(--color-text-dim); font-weight: 800; font-size: 1.1rem;">TOTAL A PAGAR:</span>
+                    <span id="cartTotalBS" style="font-size:2.2rem; font-weight:900; color:var(--color-success);">Bs. 0.00</span>
                 </div>
-                <div style="display:flex; justify-content:flex-end; margin-bottom: 20px;">
-                    <span id="cartTotalBS" style="font-size:1.2rem; font-weight:800; color:var(--color-gold);">Bs. 0.00</span>
-                </div>
+                <div id="cartTotalUSD" style="display:none;"></div>
                 
                 <button id="btnEnviarOrden" class="btn btn-success" style="width: 100%; height:60px; font-size:1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;" onclick="preEnviarOrden()" disabled>
                     🚀 Enviar Orden de Venta

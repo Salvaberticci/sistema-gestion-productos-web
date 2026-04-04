@@ -135,8 +135,8 @@ function buscarProducto(query, autoSelectFirst = false) {
                         <div class="product-card-name" style="-webkit-line-clamp: 2;">${p.referencia}</div>
                         <div class="product-card-code">Cod: ${p.codigop} • Stock: <span class="${p.exisact <= 0 ? 'text-danger fw-bold' : ''}">${parseFloat(p.exisact).toFixed(0)}</span></div>
                     </div>
-                    <div class="product-card-price" style="flex-shrink:0;">
-                        ${p.formatted_usd}
+                    <div class="product-card-price text-gold" style="flex-shrink:0;">
+                        ${p.formatted_bs} <span style="font-size:0.7rem;">BS.</span>
                     </div>
                 `;
                 container.appendChild(card);
@@ -147,7 +147,7 @@ function buscarProducto(query, autoSelectFirst = false) {
 function pedirCantidad(product) {
     Swal.fire({
         title: 'Cantidad',
-        html: `<b>${product.referencia}</b><br><br>Stock: ${Math.floor(product.exisact)}<br>Precio: <span class="text-accent">${product.formatted_usd}</span>`,
+        html: `<b>${product.referencia}</b><br><br>Stock: ${Math.floor(product.exisact)}<br>Precio: <span class="text-gold" style="font-size:1.4rem; font-weight:800;">${product.formatted_bs} <small>BS.</small></span>`,
         input: 'number',
         inputValue: 1,
         inputAttributes: { min: 1, step: 1 },
@@ -226,17 +226,16 @@ function renderCart() {
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
                 <div class="cart-item-qty">${item.cantidad} x</div>
-                <div class="cart-item-price">$ ${(item.pventa * item.cantidad).toFixed(2)}</div>
+                <div class="cart-item-price" style="color:var(--color-gold);">Bs. ${(item.precio_bs * item.cantidad).toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
                 <div style="cursor:pointer; color:var(--color-danger); font-size:1.1rem;" onclick="removerItem(${index})">🗑️</div>
             </div>
         `;
         container.appendChild(div);
     });
     
-    totalUsdSpan.innerText = `$ ${totUsd.toFixed(2)}`;
-    // Usar la tasa del primer item o 1
     const rate = cartItems[0] ? (cartItems[0].precio_bs / cartItems[0].pventa) : 1;
-    totalBsSpan.innerText = `Bs. ${(totUsd * rate).toFixed(2)}`;
+    totalBsSpan.innerText = `Bs. ${(totUsd * rate).toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    if (totalUsdSpan) totalUsdSpan.innerText = `$ ${totUsd.toFixed(2)}`;
 }
 
 function removerItem(index) {
