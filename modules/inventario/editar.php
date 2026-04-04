@@ -88,7 +88,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
         <div class="form-group">
             <label class="form-label">Código de Barras</label>
             <input type="text" name="codigop" class="form-input" required value="<?= htmlspecialchars($p['codigop']) ?>">
-            <small style="color:var(--color-text-dim); display:block; margin-top:4px;">Nota: Si cambias el código, se actualizará el identificador único del producto.</small>
+            <small style="color:var(--color-success); display:block; margin-top:4px; font-weight: 500;">✓ Puedes cambiarlo: El historial de ventas se actualizará automáticamente.</small>
         </div>
         <?php if ($p['image_path']): ?>
             <div style="text-align:center; margin-bottom:20px;">
