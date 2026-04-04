@@ -207,13 +207,15 @@ function renderCart() {
     
     if (cartItems.length === 0) {
         container.innerHTML = '<div class="text-center text-dim mt-3">El carrito está vacío</div>';
-        totalUsdSpan.innerText = '$ 0.00';
         totalBsSpan.innerText = 'Bs. 0.00';
+        if (totalUsdSpan) totalUsdSpan.innerText = '$ 0.00';
         btnEnviar.disabled = true;
+        btnEnviar.innerText = '🚀 Enviar Orden de Venta';
         return;
     }
     
     btnEnviar.disabled = false;
+    btnEnviar.innerText = '🚀 Enviar Orden de Venta';
     
     cartItems.forEach((item, index) => {
         totUsd += (item.pventa * item.cantidad);
@@ -314,13 +316,13 @@ function enviarOrden(cliente_id) {
         } else {
             Swal.fire('Error Orden', res.error, 'error');
             btn.disabled = false;
-            btn.innerText = '✅ Procesar y Enviar Orden';
+            btn.innerText = '🚀 Enviar Orden de Venta';
         }
     })
     .catch(err => {
         console.error(err);
         btn.disabled = false;
-        btn.innerText = '✅ Procesar y Enviar Orden';
+        btn.innerText = '🚀 Enviar Orden de Venta';
     });
 }
 
