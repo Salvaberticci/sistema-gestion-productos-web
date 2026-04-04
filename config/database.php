@@ -16,6 +16,7 @@ function getDB(): PDO {
         ];
         try {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+            $pdo->exec("SET time_zone = '-04:00'");
         } catch (PDOException $e) {
             die("Error de conexion: " . $e->getMessage());
         }

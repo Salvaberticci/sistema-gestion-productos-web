@@ -873,3 +873,4 @@ img { max-width: 100%; height: auto; }
     color: white;
     border-color: #f85149;
 }
+@keyframes badgePop { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } } .nav-badge { background: var(--color-danger); color: #fff; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; margin-left: auto; box-shadow: 0 2px 5px rgba(248,81,73,0.3); animation: badgePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
