@@ -1,4 +1,4 @@
-﻿// print_search.js - Búsqueda para el módulo de impresión
+// print_search.js - Búsqueda para el módulo de impresión
 
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('printSearch');
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="product-card-info">
                     <div class="product-card-name">${p.referencia}</div>
                     <div class="product-card-code">Cod: ${p.codigop}</div>
-                    <div class="product-card-price" style="text-align:left; font-size:0.875rem;">${p.formatted_usd} / ${p.formatted_bs}</div>
+                    <div class="product-card-price" style="text-align:left; font-size:1rem; color:var(--color-gold); font-weight:800;">${p.formatted_bs} <span style="font-size:0.75rem;">BS.</span></div>
                 </div>
                 <a href="generar_pdf.php?cod=${p.codigop}" target="_blank" class="btn btn-primary btn-sm">🖨️</a>
             `;
