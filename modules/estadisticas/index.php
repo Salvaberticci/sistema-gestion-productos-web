@@ -63,20 +63,21 @@ if (empty($fecha_filtro)) {
 // Grafica 2: Top 5 Buscados en el Periodo
 if (empty($fecha_filtro)) {
     $topSearches = $db->query("
-        SELECT p.referencia, COUNT(hb.id) as total 
+        SELECT COALESCE(p.referencia, hb.termino_busqueda) as referencia, COUNT(hb.id) as total 
         FROM historial_busquedas hb 
-        JOIN productos p ON hb.producto_cod = p.codigop 
-        GROUP BY hb.producto_cod 
+        LEFT JOIN productos p ON hb.producto_cod = p.codigop 
+        WHERE hb.termino_busqueda != ''
+        GROUP BY referencia 
         ORDER BY total DESC 
         LIMIT 5
     ")->fetchAll();
 } else {
     $stmt_searches = $db->prepare("
-        SELECT p.referencia, COUNT(hb.id) as total 
+        SELECT COALESCE(p.referencia, hb.termino_busqueda) as referencia, COUNT(hb.id) as total 
         FROM historial_busquedas hb 
-        JOIN productos p ON hb.producto_cod = p.codigop 
-        WHERE DATE(hb.fecha_busqueda) = ?
-        GROUP BY hb.producto_cod 
+        LEFT JOIN productos p ON hb.producto_cod = p.codigop 
+        WHERE DATE(hb.fecha_busqueda) = ? AND hb.termino_busqueda != ''
+        GROUP BY referencia 
         ORDER BY total DESC 
         LIMIT 5
     ");
