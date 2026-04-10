@@ -7,14 +7,8 @@ $db = getDB();
 // Filtro de fecha
 $fecha_filtro = $_GET['fecha'] ?? date('Y-m-d'); // Por defecto, hoy.
 
-// Datos para Grafica 1: Top 5 Stock
-$topStock = $db->query("SELECT referencia, exisact FROM productos ORDER BY exisact DESC LIMIT 5")->fetchAll();
-// Datos para Grafica 2: Top 5 Busquedas
-$topSearches = $db->query("SELECT referencia, busquedas FROM productos WHERE busquedas > 0 ORDER BY busquedas DESC LIMIT 5")->fetchAll();
-
-// Productividad de Personal (Asumiendo que `historial_busquedas` y `ordenes_venta` tienen fechas)
+// --- 1. PRODUCTIVIDAD DE PERSONAL ---
 if (empty($fecha_filtro)) {
-    // Todos los tiempos
     $productividad = $db->query("
         SELECT 
             u.id, u.nombre_completo, u.username, u.rol, u.activo,
@@ -24,7 +18,6 @@ if (empty($fecha_filtro)) {
         ORDER BY ordenes_hoy DESC, consultas_hoy DESC
     ")->fetchAll();
 } else {
-    // Filtrado por fecha
     $stmt_prod = $db->prepare("
         SELECT 
             u.id, u.nombre_completo, u.username, u.rol, u.activo,
@@ -37,9 +30,66 @@ if (empty($fecha_filtro)) {
     $productividad = $stmt_prod->fetchAll();
 }
 
+// --- 2. DATOS PARA GRÁFICAS (DINÁMICOS) ---
+
+// Grafica 1: Top 5 Vendidos en el Periodo
+if (empty($fecha_filtro)) {
+    $topSales = $db->query("
+        SELECT p.referencia, SUM(od.cantidad) as total 
+        FROM ordenes_detalles od 
+        JOIN productos p ON od.producto_cod = p.codigop 
+        JOIN ordenes_venta ov ON od.orden_id = ov.id 
+        WHERE ov.estado = 'completado'
+        GROUP BY od.producto_cod 
+        ORDER BY total DESC 
+        LIMIT 5
+    ")->fetchAll();
+} else {
+    $stmt_sales = $db->prepare("
+        SELECT p.referencia, SUM(od.cantidad) as total 
+        FROM ordenes_detalles od 
+        JOIN productos p ON od.producto_cod = p.codigop 
+        JOIN ordenes_venta ov ON od.orden_id = ov.id 
+        WHERE ov.estado = 'completado' AND DATE(ov.created_at) = ?
+        GROUP BY od.producto_cod 
+        ORDER BY total DESC 
+        LIMIT 5
+    ");
+    $stmt_sales->execute([$fecha_filtro]);
+    $topSales = $stmt_sales->fetchAll();
+}
+
+// Grafica 2: Top 5 Buscados en el Periodo
+if (empty($fecha_filtro)) {
+    $topSearches = $db->query("
+        SELECT p.referencia, COUNT(hb.id) as total 
+        FROM historial_busquedas hb 
+        JOIN productos p ON hb.producto_cod = p.codigop 
+        GROUP BY hb.producto_cod 
+        ORDER BY total DESC 
+        LIMIT 5
+    ")->fetchAll();
+} else {
+    $stmt_searches = $db->prepare("
+        SELECT p.referencia, COUNT(hb.id) as total 
+        FROM historial_busquedas hb 
+        JOIN productos p ON hb.producto_cod = p.codigop 
+        WHERE DATE(hb.fecha_busqueda) = ?
+        GROUP BY hb.producto_cod 
+        ORDER BY total DESC 
+        LIMIT 5
+    ");
+    $stmt_searches->execute([$fecha_filtro]);
+    $topSearches = $stmt_searches->fetchAll();
+}
+
 $pageTitle = 'Estadísticas Avanzadas';
 $currentModule = 'estadisticas';
-$extraScripts = ['https://cdn.jsdelivr.net/npm/chart.js'];
+
+// Scripts y Estilos Extra para Flatpickr y Charts
+$extraStyles = ['https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css', 'https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css'];
+$extraScripts = ['https://cdn.jsdelivr.net/npm/chart.js', 'https://cdn.jsdelivr.net/npm/flatpickr', 'https://npmcdn.com/flatpickr/dist/l10n/es.js'];
+
 require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/navbar.php';
 ?>
@@ -48,19 +98,21 @@ require_once __DIR__ . '/../../includes/navbar.php';
     <h2 class="page-title">📈 Estadísticas y Métricas</h2>
 </div>
 
-<!-- Filtro Integrado -->
+<!-- Filtro Integrado con Flatpickr -->
 <div class="card mb-4">
     <form method="GET" class="flex flex-col md:flex-row gap-4 items-end">
         <div style="flex:1;">
-            <label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--color-text-dim);">Productividad del Personal por Fecha</label>
-            <input type="date" name="fecha" class="form-input" value="<?= htmlspecialchars($fecha_filtro) ?>" max="<?= date('Y-m-d') ?>">
-            <p style="font-size:0.75rem; color:var(--color-text-dim); margin-top:5px;">Borre la fecha para ver el histórico global.</p>
+            <label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--color-text-dim);">Seleccione Fecha de Análisis</label>
+            <div class="relative">
+                <input type="text" id="datePicker" name="fecha" class="form-input" value="<?= htmlspecialchars($fecha_filtro) ?>" placeholder="Elija una fecha..." readonly>
+                <span style="position:absolute; right:15px; top:50%; transform:translateY(-50%); pointer-events:none; opacity:0.5;">📅</span>
+            </div>
         </div>
-        <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary" style="height: 52px; padding: 0 25px;">
-                🔍 Filtrar Productividad
+        <div class="flex gap-2 w-full md:w-auto">
+            <button type="submit" class="btn btn-primary" style="height: 52px; flex:1; min-width:120px; font-weight:800; letter-spacing:0.5px;">
+                Filtrar
             </button>
-            <a href="index.php" class="btn btn-secondary" style="height: 52px; padding: 0 25px; line-height: 52px; text-decoration: none; text-align: center;">
+            <a href="index.php" class="btn btn-secondary" style="height: 52px; padding: 0 20px; line-height: 52px; text-decoration: none; text-align: center; font-weight:700;">
                 🔄 Hoy
             </a>
         </div>
@@ -70,8 +122,10 @@ require_once __DIR__ . '/../../includes/navbar.php';
 <!-- Grilla de Empleados (Productividad) -->
 <h3 class="card-title mb-3 px-2">👥 Desempeño del Personal <?= empty($fecha_filtro) ? '(Historico Global)' : '(Datos del: '.date('d/m/Y', strtotime($fecha_filtro)).')' ?></h3>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
-    <?php foreach ($productividad as $u): ?>
-        <div class="card p-4" style="border-left: 4px solid <?= $u['rol'] === 'admin' ? 'var(--color-accent)' : 'var(--color-gold)' ?>;">
+    <?php if(empty($productividad)): ?>
+        <div class="col-span-full card p-4 text-center text-dim">No se encontraron usuarios para mostrar.</div>
+    <?php else: foreach ($productividad as $u): ?>
+        <div class="card p-4 transition-all hover:scale-[1.02]" style="border-left: 4px solid <?= $u['rol'] === 'admin' ? 'var(--color-accent)' : 'var(--color-gold)' ?>;">
             <div class="flex items-center gap-4 mb-4">
                 <div class="user-avatar" style="width:45px; height:45px; font-size:1.1rem; background:rgba(255,255,255,0.05); color:var(--color-text); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">
                     <?= strtoupper(substr($u['nombre_completo'], 0, 1)) ?>
@@ -96,7 +150,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
                     <div style="color:var(--color-accent); font-weight:900; font-size:1.5rem; line-height:1;"><?= number_format($u['consultas_hoy']) ?></div>
                 </div>
                 <div style="background:rgba(0,0,0,0.2); padding:10px; border-radius:10px; border:1px solid rgba(210,166,84,0.1); text-align:center;">
-                    <div style="font-size:0.65rem; color:var(--color-text-dim); text-transform:uppercase; font-weight:800; letter-spacing:0.5px; margin-bottom:5px;">Órdenes (Tickets)</div>
+                    <div style="font-size:0.65rem; color:var(--color-text-dim); text-transform:uppercase; font-weight:800; letter-spacing:0.5px; margin-bottom:5px;">Tickets</div>
                     <div style="color:var(--color-gold); font-weight:900; font-size:1.5rem; line-height:1;"><?= number_format($u['ordenes_hoy']) ?></div>
                 </div>
             </div>
@@ -104,68 +158,92 @@ require_once __DIR__ . '/../../includes/navbar.php';
                 <div class="mt-3 text-center text-danger" style="font-size:0.75rem; font-weight:800;">(USUARIO INACTIVO)</div>
             <?php endif; ?>
         </div>
-    <?php endforeach; ?>
+    <?php endforeach; endif; ?>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div class="card">
-        <h3 class="card-title mb-2">📦 Distribución de Inventario (Top 5)</h3>
-        <canvas id="stockChart" style="max-height:300px;"></canvas>
+        <h3 class="card-title mb-4">🏆 Top Ventas del Periodo</h3>
+        <?php if(empty($topSales)): ?>
+            <div style="height:300px; display:flex; align-items:center; justify-content:center;" class="text-dim">No hay ventas registradas en esta fecha.</div>
+        <?php else: ?>
+            <canvas id="salesChart" style="max-height:300px;"></canvas>
+        <?php endif; ?>
     </div>
 
     <div class="card">
-        <h3 class="card-title mb-2">🔥 Interés del Cliente (Top 5 Todos los Tiempos)</h3>
-        <canvas id="searchChart" style="max-height:300px;"></canvas>
+        <h3 class="card-title mb-4">🔥 Interés del Cliente (Búsquedas)</h3>
+        <?php if(empty($topSearches)): ?>
+            <div style="height:300px; display:flex; align-items:center; justify-content:center;" class="text-dim">No hay búsquedas registradas en esta fecha.</div>
+        <?php else: ?>
+            <canvas id="searchChart" style="max-height:300px;"></canvas>
+        <?php endif; ?>
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const stockData = <?= json_encode($topStock) ?>;
+    // Inicializar Flatpickr
+    flatpickr("#datePicker", {
+        locale: "es",
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "d \\de F, Y",
+        maxDate: "today",
+        disableMobile: "true",
+        theme: "dark"
+    });
+
+    const salesData = <?= json_encode($topSales) ?>;
     const searchData = <?= json_encode($topSearches) ?>;
 
-    // Chart de Stock
-    new Chart(document.getElementById('stockChart'), {
-        type: 'bar',
-        data: {
-            labels: stockData.map(d => d.referencia.substring(0, 15) + '...'),
-            datasets: [{
-                label: 'Unidades en Stock',
-                data: stockData.map(d => d.exisact),
-                backgroundColor: '#58A6FF',
-                borderRadius: 8
-            }]
-        },
-        options: {
-            scales: {
-                y: { beginAtZero: true, grid: { color: '#30363D' }, ticks: { color: '#8B949E' } },
-                x: { grid: { display: false }, ticks: { color: '#8B949E' } }
+    // Chart de Ventas (Barras)
+    if (document.getElementById('salesChart')) {
+        new Chart(document.getElementById('salesChart'), {
+            type: 'bar',
+            data: {
+                labels: salesData.map(d => d.referencia.substring(0, 15) + (d.referencia.length > 15 ? '...' : '')),
+                datasets: [{
+                    label: 'Cantidad Vendida',
+                    data: salesData.map(d => d.total),
+                    backgroundColor: '#238636',
+                    borderRadius: 8
+                }]
             },
-            plugins: { legend: { display: false } }
-        }
-    });
+            options: {
+                indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true, grid: { color: '#30363D' }, ticks: { color: '#8B949E' } },
+                    y: { grid: { display: false }, ticks: { color: '#8B949E' } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
 
-    // Chart de Busquedas
-    new Chart(document.getElementById('searchChart'), {
-        type: 'doughnut',
-        data: {
-            labels: searchData.map(d => d.referencia.substring(0, 15)),
-            datasets: [{
-                data: searchData.map(d => d.busquedas),
-                backgroundColor: ['#58A6FF', '#D1A054', '#238636', '#F85149', '#8B949E'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { color: '#F0F6FC', padding: 20, font: { family: 'Inter', size: 10 } }
-                }
+    // Chart de Busquedas (Doughnut)
+    if (document.getElementById('searchChart')) {
+        new Chart(document.getElementById('searchChart'), {
+            type: 'doughnut',
+            data: {
+                labels: searchData.map(d => d.referencia.substring(0, 15)),
+                datasets: [{
+                    data: searchData.map(d => d.total),
+                    backgroundColor: ['#58A6FF', '#D2A654', '#238636', '#F85149', '#8B949E'],
+                    borderWidth: 0
+                }]
             },
-            cutout: '70%'
-        }
-    });
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#F0F6FC', padding: 20, font: { family: 'Inter', size: 10 } }
+                    }
+                },
+                cutout: '75%'
+            }
+        });
+    }
 });
 </script>
 
