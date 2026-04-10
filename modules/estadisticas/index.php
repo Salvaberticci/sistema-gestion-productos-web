@@ -86,15 +86,10 @@ if (empty($fecha_filtro)) {
 $pageTitle = 'Estadísticas Avanzadas';
 $currentModule = 'estadisticas';
 
-// Scripts y Estilos Extra para Flatpickr y Charts (Localizados para evitar SecurityError)
-$extraStyles = [
-    APP_URL . '/assets/vendor/flatpickr/flatpickr.min.css',
-    APP_URL . '/assets/vendor/flatpickr/dark.css'
-];
+// Scripts y Estilos Extra (Solo Charts, eliminamos Flatpickr por simplicidad y estabilidad)
+$extraStyles = [];
 $extraScripts = [
-    'https://cdn.jsdelivr.net/npm/chart.js', 
-    APP_URL . '/assets/vendor/flatpickr/flatpickr.min.js',
-    APP_URL . '/assets/vendor/flatpickr/es.js'
+    'https://cdn.jsdelivr.net/npm/chart.js'
 ];
 
 require_once __DIR__ . '/../../includes/header.php';
@@ -111,8 +106,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
         <div style="flex:1;">
             <label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--color-text-dim);">Seleccione Fecha de Análisis</label>
             <div class="relative">
-                <input type="text" id="datePicker" name="fecha" class="form-input" value="<?= htmlspecialchars($fecha_filtro) ?>" placeholder="Elija una fecha..." readonly>
-                <span style="position:absolute; right:15px; top:50%; transform:translateY(-50%); pointer-events:none; opacity:0.5;">📅</span>
+                <input type="date" id="datePicker" name="fecha" class="form-input" value="<?= htmlspecialchars($fecha_filtro) ?>" max="<?= date('Y-m-d') ?>" style="color-scheme: dark; padding-right: 15px;">
             </div>
         </div>
         <div class="flex gap-2 w-full md:w-auto">
@@ -185,21 +179,10 @@ require_once __DIR__ . '/../../includes/navbar.php';
         <?php else: ?>
             <canvas id="searchChart" style="max-height:300px;"></canvas>
         <?php endif; ?>
-    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicializar Flatpickr
-    flatpickr("#datePicker", {
-        locale: "es",
-        dateFormat: "Y-m-d",
-        altInput: true,
-        altFormat: "d \\de F, Y",
-        maxDate: "today",
-        disableMobile: "true",
-        theme: "dark"
-    });
 
     const salesData = <?= json_encode($topSales) ?>;
     const searchData = <?= json_encode($topSearches) ?>;
