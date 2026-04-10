@@ -16,12 +16,19 @@ if (empty($q)) {
         $stmt_track = $db->prepare("UPDATE usuarios SET consultas_realizadas = consultas_realizadas + 1 WHERE id = ?");
         $stmt_track->execute([$user_id]);
         
-        // Intentar identificar si la búsqueda corresponde a un producto exacto (ej. escaneo)
+        // Intentar identificar si la búsqueda corresponde a un producto (ej. escaneo o nombre exacto)
         $producto_encontrado = null;
-        if (strlen($q) >= 3) {
-            $stmt_check = $db->prepare("SELECT codigop FROM productos WHERE codigop = ? LIMIT 1");
-            $stmt_check->execute([$q]);
+        if (strlen($q) >= 2) {
+            $stmt_check = $db->prepare("SELECT codigop FROM productos WHERE codigop = ? OR referencia = ? LIMIT 1");
+            $stmt_check->execute([$q, $q]);
             $producto_encontrado = $stmt_check->fetchColumn();
+            
+            // Si aún no se encuentra, buscar por LIKE limitado para asociar con el más probable
+            if (!$producto_encontrado) {
+                $stmt_check_like = $db->prepare("SELECT codigop FROM productos WHERE referencia LIKE ? LIMIT 1");
+                $stmt_check_like->execute(["%$q%"]);
+                $producto_encontrado = $stmt_check_like->fetchColumn();
+            }
         }
 
         // Registrar en historial para analítica diaria

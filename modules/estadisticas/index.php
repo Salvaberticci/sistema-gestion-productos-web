@@ -63,21 +63,33 @@ if (empty($fecha_filtro)) {
 // Grafica 2: Top 5 Buscados en el Periodo
 if (empty($fecha_filtro)) {
     $topSearches = $db->query("
-        SELECT COALESCE(p.referencia, hb.termino_busqueda) as referencia, COUNT(hb.id) as total 
+        SELECT 
+            COALESCE(
+                p.referencia, 
+                (SELECT p2.referencia FROM productos p2 WHERE p2.codigop = hb.termino_busqueda LIMIT 1),
+                hb.termino_busqueda 
+            ) as label,
+            COUNT(hb.id) as total 
         FROM historial_busquedas hb 
         LEFT JOIN productos p ON hb.producto_cod = p.codigop 
         WHERE hb.termino_busqueda != ''
-        GROUP BY referencia 
+        GROUP BY label 
         ORDER BY total DESC 
         LIMIT 5
     ")->fetchAll();
 } else {
     $stmt_searches = $db->prepare("
-        SELECT COALESCE(p.referencia, hb.termino_busqueda) as referencia, COUNT(hb.id) as total 
+        SELECT 
+            COALESCE(
+                p.referencia, 
+                (SELECT p2.referencia FROM productos p2 WHERE p2.codigop = hb.termino_busqueda LIMIT 1),
+                hb.termino_busqueda 
+            ) as label,
+            COUNT(hb.id) as total 
         FROM historial_busquedas hb 
         LEFT JOIN productos p ON hb.producto_cod = p.codigop 
         WHERE DATE(hb.fecha_busqueda) = ? AND hb.termino_busqueda != ''
-        GROUP BY referencia 
+        GROUP BY label 
         ORDER BY total DESC 
         LIMIT 5
     ");
@@ -223,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         new Chart(document.getElementById('searchChart'), {
             type: 'doughnut',
             data: {
-                labels: searchData.map(d => d.referencia.substring(0, 15)),
+                labels: searchData.map(d => d.label.substring(0, 20) + (d.label.length > 20 ? '...' : '')),
                 datasets: [{
                     data: searchData.map(d => d.total),
                     backgroundColor: ['#58A6FF', '#D2A654', '#238636', '#F85149', '#8B949E'],
