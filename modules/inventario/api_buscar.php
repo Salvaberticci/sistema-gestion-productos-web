@@ -16,9 +16,17 @@ if (empty($q)) {
         $stmt_track = $db->prepare("UPDATE usuarios SET consultas_realizadas = consultas_realizadas + 1 WHERE id = ?");
         $stmt_track->execute([$user_id]);
         
+        // Intentar identificar si la búsqueda corresponde a un producto exacto (ej. escaneo)
+        $producto_encontrado = null;
+        if (strlen($q) >= 3) {
+            $stmt_check = $db->prepare("SELECT codigop FROM productos WHERE codigop = ? LIMIT 1");
+            $stmt_check->execute([$q]);
+            $producto_encontrado = $stmt_check->fetchColumn();
+        }
+
         // Registrar en historial para analítica diaria
-        $stmt_hist = $db->prepare("INSERT INTO historial_busquedas (usuario_id, termino_busqueda) VALUES (?, ?)");
-        $stmt_hist->execute([$user_id, $q]);
+        $stmt_hist = $db->prepare("INSERT INTO historial_busquedas (usuario_id, producto_cod, termino_busqueda) VALUES (?, ?, ?)");
+        $stmt_hist->execute([$user_id, $producto_encontrado, $q]);
     }
     
     // 2. Aumentar popularidad del producto si escanean código exacto
