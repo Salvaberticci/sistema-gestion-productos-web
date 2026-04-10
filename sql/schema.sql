@@ -36,6 +36,16 @@ CREATE TABLE IF NOT EXISTS productos (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+-- Historial detallado de búsquedas (para analítica diaria)
+CREATE TABLE IF NOT EXISTS historial_busquedas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NULL,
+    producto_cod VARCHAR(50) NOT NULL,
+    fecha_busqueda TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
+    FOREIGN KEY (producto_cod) REFERENCES productos(codigop) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- Tabla de Configuracion
 CREATE TABLE IF NOT EXISTS configuracion (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -12,8 +12,13 @@ if (empty($q)) {
 } else {
     // 1. Aumentar métrica del usuario (Trazabilidad)
     if (isset($_SESSION['user_id'])) {
+        $user_id = $_SESSION['user_id'];
         $stmt_track = $db->prepare("UPDATE usuarios SET consultas_realizadas = consultas_realizadas + 1 WHERE id = ?");
-        $stmt_track->execute([$_SESSION['user_id']]);
+        $stmt_track->execute([$user_id]);
+        
+        // Registrar en historial para analítica diaria
+        $stmt_hist = $db->prepare("INSERT INTO historial_busquedas (usuario_id, termino_busqueda) VALUES (?, ?)");
+        $stmt_hist->execute([$user_id, $q]);
     }
     
     // 2. Aumentar popularidad del producto si escanean código exacto
