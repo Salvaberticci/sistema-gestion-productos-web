@@ -5,7 +5,8 @@ requireAdmin();
 $db = getDB();
 
 // Filtro de fecha
-$fecha_filtro = $_GET['fecha'] ?? date('Y-m-d'); // Por defecto, hoy.
+$fecha_filtro = $_GET['fecha'] ?? null; // Por defecto null (General)
+if (isset($_GET['hoy'])) { $fecha_filtro = date('Y-m-d'); }
 
 // --- 1. PRODUCTIVIDAD DE PERSONAL ---
 if (empty($fecha_filtro)) {
@@ -100,28 +101,33 @@ require_once __DIR__ . '/../../includes/navbar.php';
     <h2 class="page-title">📈 Estadísticas y Métricas</h2>
 </div>
 
-<!-- Filtro Integrado con Flatpickr -->
+<!-- Filtro de Fecha -->
 <div class="card mb-4">
-    <form method="GET" class="flex flex-col md:flex-row gap-4 items-end">
+    <form method="GET" class="flex flex-col md:flex-row gap-3 items-end">
         <div style="flex:1;">
-            <label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--color-text-dim);">Seleccione Fecha de Análisis</label>
-            <div class="relative">
-                <input type="date" id="datePicker" name="fecha" class="form-input" value="<?= htmlspecialchars($fecha_filtro) ?>" max="<?= date('Y-m-d') ?>" style="color-scheme: dark; padding-right: 15px;">
-            </div>
+            <label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--color-text-dim);">
+                <?= empty($fecha_filtro) ? '🔍 Filtrar por Fecha' : '📅 Fecha Seleccionada' ?>
+            </label>
+            <input type="date" id="datePicker" name="fecha" class="form-input" value="<?= htmlspecialchars($fecha_filtro ?? '') ?>" max="<?= date('Y-m-d') ?>" style="color-scheme: dark;">
         </div>
         <div class="flex gap-2 w-full md:w-auto">
-            <button type="submit" class="btn btn-primary" style="height: 52px; flex:1; min-width:120px; font-weight:800; letter-spacing:0.5px;">
+            <button type="submit" class="btn btn-primary" style="height: 48px; flex:1; min-width:100px; font-weight:800;">
                 Filtrar
             </button>
-            <a href="index.php" class="btn btn-secondary" style="height: 52px; padding: 0 20px; line-height: 52px; text-decoration: none; text-align: center; font-weight:700;">
-                🔄 Hoy
+            <button type="submit" name="hoy" value="1" class="btn btn-secondary" style="height: 48px; padding: 0 15px; font-weight:700;">
+                Hoy
+            </button>
+            <a href="index.php" class="btn btn-secondary" style="height: 48px; padding: 0 15px; line-height: 48px; text-decoration: none; text-align: center; border-color: var(--color-accent); color: var(--color-accent);">
+                📊 Ver Todo
             </a>
         </div>
     </form>
 </div>
 
 <!-- Grilla de Empleados (Productividad) -->
-<h3 class="card-title mb-3 px-2">👥 Desempeño del Personal <?= empty($fecha_filtro) ? '(Historico Global)' : '(Datos del: '.date('d/m/Y', strtotime($fecha_filtro)).')' ?></h3>
+<h3 class="card-title mb-3 px-2">
+    👥 <?= empty($fecha_filtro) ? 'Rendimiento Histórico General' : 'Productividad del Personal ('.date('d/m/Y', strtotime($fecha_filtro)).')' ?>
+</h3>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
     <?php if(empty($productividad)): ?>
         <div class="col-span-full card p-4 text-center text-dim">No se encontraron usuarios para mostrar.</div>
@@ -164,7 +170,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div class="card">
-        <h3 class="card-title mb-4">🏆 Top Ventas del Periodo</h3>
+        <h3 class="card-title mb-4">🏆 <?= empty($fecha_filtro) ? 'Top 5 Más Vendidos (Histórico)' : 'Top Ventas del Día' ?></h3>
         <?php if(empty($topSales)): ?>
             <div style="height:300px; display:flex; align-items:center; justify-content:center;" class="text-dim">No hay ventas registradas en esta fecha.</div>
         <?php else: ?>
@@ -173,7 +179,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
     </div>
 
     <div class="card">
-        <h3 class="card-title mb-4">🔥 Interés del Cliente (Búsquedas)</h3>
+        <h3 class="card-title mb-4">🔥 <?= empty($fecha_filtro) ? 'Tendencias de Búsqueda (Global)' : 'Interés del Momento (Búsquedas)' ?></h3>
         <?php if(empty($topSearches)): ?>
             <div style="height:300px; display:flex; align-items:center; justify-content:center;" class="text-dim">No hay búsquedas registradas en esta fecha.</div>
         <?php else: ?>
