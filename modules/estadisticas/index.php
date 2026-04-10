@@ -86,9 +86,16 @@ if (empty($fecha_filtro)) {
 $pageTitle = 'Estadísticas Avanzadas';
 $currentModule = 'estadisticas';
 
-// Scripts y Estilos Extra para Flatpickr y Charts
-$extraStyles = ['https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css', 'https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css'];
-$extraScripts = ['https://cdn.jsdelivr.net/npm/chart.js', 'https://cdn.jsdelivr.net/npm/flatpickr', 'https://npmcdn.com/flatpickr/dist/l10n/es.js'];
+// Scripts y Estilos Extra para Flatpickr y Charts (Localizados para evitar SecurityError)
+$extraStyles = [
+    APP_URL . '/assets/vendor/flatpickr/flatpickr.min.css',
+    APP_URL . '/assets/vendor/flatpickr/dark.css'
+];
+$extraScripts = [
+    'https://cdn.jsdelivr.net/npm/chart.js', 
+    APP_URL . '/assets/vendor/flatpickr/flatpickr.min.js',
+    APP_URL . '/assets/vendor/flatpickr/es.js'
+];
 
 require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/navbar.php';
