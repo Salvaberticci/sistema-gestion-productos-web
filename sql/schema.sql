@@ -40,10 +40,11 @@ CREATE TABLE IF NOT EXISTS productos (
 CREATE TABLE IF NOT EXISTS historial_busquedas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NULL,
-    producto_cod VARCHAR(50) NOT NULL,
+    producto_cod VARCHAR(50) NULL,
+    termino_busqueda VARCHAR(255) DEFAULT '',
     fecha_busqueda TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
-    FOREIGN KEY (producto_cod) REFERENCES productos(codigop) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (producto_cod) REFERENCES productos(codigop) ON UPDATE CASCADE ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- Tabla de Configuracion
