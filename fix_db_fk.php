@@ -44,12 +44,12 @@ try {
     $db->exec("ALTER TABLE ordenes_detalles DROP FOREIGN KEY $fk_name");
     echo "<p style='color:green;'>✓ Restricción antigua eliminada exitosamente.</p>";
 
-    // 3. Crear la nueva con ON UPDATE CASCADE
+    // 3. Crear la nueva con ON UPDATE CASCADE y ON DELETE CASCADE
     $db->exec("ALTER TABLE ordenes_detalles 
                ADD CONSTRAINT ordenes_detalles_productos_fk 
                FOREIGN KEY (producto_cod) 
                REFERENCES productos(codigop) 
-               ON UPDATE CASCADE");
+               ON UPDATE CASCADE ON DELETE CASCADE");
     
     echo "<p style='color:green;'>✓ Nueva regla de 'Actualización en Cascada' aplicada correctamente.</p>";
 

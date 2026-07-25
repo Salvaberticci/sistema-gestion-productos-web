@@ -98,5 +98,5 @@ CREATE TABLE IF NOT EXISTS ordenes_detalles (
     precio_unitario_usd DECIMAL(10,2) NOT NULL,
     subtotal_usd DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (orden_id) REFERENCES ordenes_venta(id),
-    FOREIGN KEY (producto_cod) REFERENCES productos(codigop) ON UPDATE CASCADE
+    FOREIGN KEY (producto_cod) REFERENCES productos(codigop) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
