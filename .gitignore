@@ -6,8 +6,9 @@ assets/images/products/*
 *.log
 .DS_Store
 Thumbs.db
-vendor/
+
 debug_stats.php
 composer.phar
 .idea/
 .vscode/
+el-rebusque-web.zip
