@@ -10,35 +10,34 @@ $db = getDB();
 if (empty($q)) {
     $stmt = $db->query("SELECT * FROM productos ORDER BY created_at DESC LIMIT 50");
 } else {
-    // 1. Aumentar métrica del usuario (Trazabilidad)
-    if (isset($_SESSION['user_id'])) {
-        $user_id = $_SESSION['user_id'];
-        $stmt_track = $db->prepare("UPDATE usuarios SET consultas_realizadas = consultas_realizadas + 1 WHERE id = ?");
-        $stmt_track->execute([$user_id]);
-        
-        // Intentar identificar si la búsqueda corresponde a un producto (ej. escaneo o nombre exacto)
-        $producto_encontrado = null;
-        if (strlen($q) >= 2) {
-            $stmt_check = $db->prepare("SELECT codigop FROM productos WHERE codigop = ? OR referencia = ? LIMIT 1");
-            $stmt_check->execute([$q, $q]);
-            $producto_encontrado = $stmt_check->fetchColumn();
+    try {
+        if (isset($_SESSION['user_id'])) {
+            $user_id = $_SESSION['user_id'];
+            $stmt_track = $db->prepare("UPDATE usuarios SET consultas_realizadas = consultas_realizadas + 1 WHERE id = ?");
+            $stmt_track->execute([$user_id]);
             
-            // Si aún no se encuentra, buscar por LIKE limitado para asociar con el más probable
-            if (!$producto_encontrado) {
-                $stmt_check_like = $db->prepare("SELECT codigop FROM productos WHERE referencia LIKE ? LIMIT 1");
-                $stmt_check_like->execute(["%$q%"]);
-                $producto_encontrado = $stmt_check_like->fetchColumn();
+            $producto_encontrado = null;
+            if (strlen($q) >= 2) {
+                $stmt_check = $db->prepare("SELECT codigop FROM productos WHERE codigop = ? OR referencia = ? LIMIT 1");
+                $stmt_check->execute([$q, $q]);
+                $producto_encontrado = $stmt_check->fetchColumn();
+                
+                if (!$producto_encontrado) {
+                    $stmt_check_like = $db->prepare("SELECT codigop FROM productos WHERE referencia LIKE ? LIMIT 1");
+                    $stmt_check_like->execute(["%$q%"]);
+                    $producto_encontrado = $stmt_check_like->fetchColumn();
+                }
             }
-        }
 
-        // Registrar en historial para analítica diaria
-        $stmt_hist = $db->prepare("INSERT INTO historial_busquedas (usuario_id, producto_cod, termino_busqueda) VALUES (?, ?, ?)");
-        $stmt_hist->execute([$user_id, $producto_encontrado, $q]);
+            $stmt_hist = $db->prepare("INSERT INTO historial_busquedas (usuario_id, producto_cod, termino_busqueda) VALUES (?, ?, ?)");
+            $stmt_hist->execute([$user_id, $producto_encontrado ?: null, $q]);
+        }
+        
+        $stmt_prod_track = $db->prepare("UPDATE productos SET busquedas = busquedas + 1 WHERE codigop = ?");
+        $stmt_prod_track->execute([$q]);
+    } catch (Exception $e) {
+        // Tracking no crítico: no interrumpe la respuesta JSON
     }
-    
-    // 2. Aumentar popularidad del producto si escanean código exacto
-    $stmt_prod_track = $db->prepare("UPDATE productos SET busquedas = busquedas + 1 WHERE codigop = ?");
-    $stmt_prod_track->execute([$q]);
 
     $stmt = $db->prepare("SELECT * FROM productos WHERE codigop LIKE ? OR referencia LIKE ? ORDER BY busquedas DESC LIMIT 50");
     $stmt->execute(["%$q%", "%$q%"]);
