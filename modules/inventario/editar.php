@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../includes/auth.php';
-requireLogin();
+requireAdmin(); // Solo el Admin puede editar productos
 
 $id = $_GET['id'] ?? null;
 if (!$id) { header('Location: index.php'); exit; }

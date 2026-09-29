@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../includes/auth.php';
-requireLogin();
+requireAdmin(); // Módulo de Impresión: solo Admin
 require_once __DIR__ . '/../../assets/vendor/fpdf/fpdf.php';
 
 $cod = $_GET['cod'] ?? null;

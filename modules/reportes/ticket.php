@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../includes/auth.php';
-requireLogin();
+requireAdmin(); // El ticket expone cedula y telefono del cliente
 
 use Dompdf\Dompdf;
 use Dompdf\Options;

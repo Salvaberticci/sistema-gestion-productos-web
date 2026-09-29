@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../includes/auth.php';
-requireLogin();
+requireAdmin(); // Solo el Admin puede crear productos
 
 $error = '';
 $success = '';
