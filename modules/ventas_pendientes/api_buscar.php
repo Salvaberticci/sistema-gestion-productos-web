@@ -9,16 +9,17 @@ $db = getDB();
 
 try {
     $sql = "
-        SELECT ov.*, c.nombre, c.apellido, c.cedula 
+        SELECT ov.*, c.nombre, c.apellido, c.cedula, u.nombre_completo AS atendio
         FROM ordenes_venta ov 
         JOIN clientes c ON ov.cliente_id = c.id 
+        LEFT JOIN usuarios u ON ov.usuario_id = u.id
         WHERE ov.estado = 'pendiente'
     ";
 
     if (!empty($q)) {
-        $sql .= " AND (c.nombre LIKE ? OR c.apellido LIKE ? OR c.cedula LIKE ? OR ov.id = ?)";
+        $sql .= " AND (c.nombre LIKE ? OR c.apellido LIKE ? OR c.cedula LIKE ? OR u.nombre_completo LIKE ? OR ov.id = ?)";
         $stmt = $db->prepare($sql . " ORDER BY ov.created_at ASC LIMIT 100");
-        $stmt->execute(["%$q%", "%$q%", "%$q%", $q]);
+        $stmt->execute(["%$q%", "%$q%", "%$q%", "%$q%", $q]);
     } else {
         $stmt = $db->query($sql . " ORDER BY ov.created_at ASC LIMIT 100");
     }
@@ -28,6 +29,7 @@ try {
     // Formatear datos para la respuesta
     foreach ($orders as &$o) {
         $o['cliente_full'] = htmlspecialchars($o['nombre'] . ' ' . $o['apellido']);
+        $o['atendio'] = !empty($o['atendio']) ? htmlspecialchars($o['atendio']) : 'Sin asignar';
         $o['fecha_fmt'] = date('d/m/y H:i', strtotime($o['created_at']));
         $o['total_usd_fmt'] = formatCurrency((float)$o['total_usd']);
         $o['total_bs_fmt'] = formatCurrency((float)$o['total_bs'], 'Bs.');

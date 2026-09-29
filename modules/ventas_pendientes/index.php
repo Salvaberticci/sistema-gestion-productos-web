@@ -15,7 +15,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
 
 <!-- Search Bar -->
 <div class="search-bar mb-4">
-    <input type="text" id="orderSearch" class="form-input" placeholder="Buscar por nombre, cédula o #ID..." autocomplete="off">
+    <input type="text" id="orderSearch" class="form-input" placeholder="Buscar por cliente, cédula, quien atendió o #ID..." autocomplete="off">
 </div>
 
 <!-- Results Area -->
@@ -27,6 +27,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
                 <tr>
                     <th>ID</th>
                     <th>Cliente</th>
+                    <th>Atendió</th>
                     <th>Documento</th>
                     <th>Monto</th>
                     <th>Fecha</th>
@@ -35,7 +36,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
             </thead>
             <tbody id="desktopOrdersBody">
                 <!-- AJAX Load -->
-                <tr><td colspan="6" class="text-center p-4">Escribe para empezar a buscar...</td></tr>
+                <tr><td colspan="7" class="text-center p-4">Escribe para empezar a buscar...</td></tr>
             </tbody>
         </table>
     </div>
@@ -102,13 +103,13 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(err => {
                 console.error(err);
-                desktopBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger p-4">Error: ${err.message}</td></tr>`;
+                desktopBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger p-4">Error: ${err.message}</td></tr>`;
             });
     }
 
     function renderResults(orders) {
         if (orders.length === 0) {
-            const emptyMsg = '<tr><td colspan="6" class="text-center p-4 text-dim">No se encontraron órdenes pendientes.</td></tr>';
+            const emptyMsg = '<tr><td colspan="7" class="text-center p-4 text-dim">No se encontraron órdenes pendientes.</td></tr>';
             desktopBody.innerHTML = emptyMsg;
             mobileContainer.innerHTML = '<p class="text-center text-dim p-4">No hay resultados.</p>';
             return;
@@ -123,6 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <tr>
                     <td><span class="text-dim">#</span>${o.id}</td>
                     <td><span class="fw-bold">${o.cliente_full}</span></td>
+                    <td>
+                        <div style="font-size:0.85rem; font-weight:600; color:var(--color-success);">${o.atendio}</div>
+                        <div style="font-size:0.65rem; color:var(--color-text-dim);">@${o.usuario_id}</div>
+                    </td>
                     <td><small class="text-dim">${o.cedula}</small></td>
                     <td>
                         <div class="text-accent fw-bold">${o.total_usd_fmt}</div>
@@ -143,6 +148,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div style="font-size:0.7rem; font-weight:800; color:var(--color-text-dim);">ORDEN #${o.id}</div>
                             <div style="font-weight:800; font-size:1rem;">${o.cliente_full}</div>
                             <div style="font-size:0.7rem; opacity:0.6;">V.I.P CLIENT - ${o.cedula}</div>
+                            <div style="font-size:0.7rem; margin-top:4px; color:var(--color-success); font-weight:700;">
+                                👤 Atendió: ${o.atendio}
+                            </div>
                         </div>
                         <div style="text-align:right;">
                             <div style="font-weight:900; color:var(--color-accent); font-size:1.1rem;">${o.total_usd_fmt}</div>
