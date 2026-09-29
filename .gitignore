@@ -1,4 +1,5 @@
 .env
+config/database.local.php
 uploads/*
 !uploads/.gitkeep
 assets/images/products/*

@@ -19,7 +19,13 @@ if (getenv('APP_BASE_PATH') !== false) {
 
     // Solo si la raiz del proyecto esta realmente dentro del DOCUMENT_ROOT
     if ($docRoot !== '' && strpos($appRoot . '/', $prefix) === 0) {
-        $basePath = rtrim(substr($appRoot . '/', strlen($prefix)), '/');
+        $relative = rtrim(substr($appRoot . '/', strlen($prefix)), '/');
+        // Debe ser una ruta absoluta: las plantillas concatenan APP_URL con
+        // /assets/... y una URL relativa se rompe dentro de los submodulos
+        // (/modules/ventas/, /modules/dashboard/, ...)
+        if ($relative !== '') {
+            $basePath = '/' . $relative;
+        }
     }
 }
 
