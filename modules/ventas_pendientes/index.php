@@ -4,7 +4,7 @@ requireOrderAccess();
 
 $pageTitle = 'Gestión de Órdenes Pendientes';
 $currentModule = 'ventas_pendientes';
-$canApprove = isAdmin();
+$canApprove = canApproveOrders();
 require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/navbar.php';
 ?>

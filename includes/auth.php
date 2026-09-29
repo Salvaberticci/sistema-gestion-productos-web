@@ -45,12 +45,28 @@ function requireOrderAccess(): void {
 }
 
 /**
+ * Aprobar o rechazar ordenes. Ojo: aprobar descuenta el stock automaticamente,
+ * asi que este permiso implica capacidad de modificar el inventario.
+ */
+function canApproveOrders(): bool {
+    return isAdmin() || isCajero();
+}
+
+function requireApproveOrders(): void {
+    requireLogin();
+    if (!canApproveOrders()) {
+        header('Location: ' . APP_URL . '/modules/ventas/index.php');
+        exit;
+    }
+}
+
+/**
  * Roles del sistema, en orden de menor a mayor privilegio.
  */
 function etiquetasRol(): array {
     return [
         'empleado' => 'Empleado (Inventario e Impresión)',
-        'cajero'   => 'Cajero (Ventas y consulta de órdenes)',
+        'cajero'   => 'Cajero (Ventas, consulta y aprobación de órdenes)',
         'admin'    => 'Administrador (Acceso Total)',
     ];
 }
