@@ -30,6 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pass = $_POST['password'] ?? '';
     $rol = $_POST['rol'] ?? 'empleado';
 
+    if (!in_array($rol, ['admin', 'empleado', 'cajero'], true)) {
+        $rol = 'empleado';
+    }
+
     if (empty($nombre_input) || empty($apellido_input) || empty($username)) {
         $error = 'Nombre, Apellido y Usuario son obligatorios.';
     } else {
@@ -120,6 +124,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
             <label class="form-label">Rol del Sistema</label>
             <select name="rol" class="form-input" style="appearance: none; -webkit-appearance: none; cursor:pointer;" <?= ($_SESSION['user_id'] == $id) ? 'disabled' : '' ?>>
                 <option value="empleado" <?= $u['rol'] === 'empleado' ? 'selected' : '' ?>>Empleado (Inventario e Impresión)</option>
+                <option value="cajero" <?= $u['rol'] === 'cajero' ? 'selected' : '' ?>>Cajero (Ventas y consulta de órdenes)</option>
                 <option value="admin" <?= $u['rol'] === 'admin' ? 'selected' : '' ?>>Administrador (Acceso Total)</option>
             </select>
             <?php if ($_SESSION['user_id'] == $id): ?>

@@ -145,7 +145,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
     <?php if(empty($productividad)): ?>
         <div class="col-span-full card p-4 text-center text-dim">No se encontraron usuarios para mostrar.</div>
     <?php else: foreach ($productividad as $u): ?>
-        <div class="card p-4 transition-all hover:scale-[1.02]" style="border-left: 4px solid <?= $u['rol'] === 'admin' ? 'var(--color-accent)' : 'var(--color-gold)' ?>;">
+        <div class="card p-4 transition-all hover:scale-[1.02]" style="border-left: 4px solid <?= $u['rol'] === 'admin' ? 'var(--color-accent)' : ($u['rol'] === 'cajero' ? '#3fb950' : 'var(--color-gold)') ?>;">
             <div class="flex items-center gap-4 mb-4">
                 <div class="user-avatar" style="width:45px; height:45px; font-size:1.1rem; background:rgba(255,255,255,0.05); color:var(--color-text); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">
                     <?= strtoupper(substr($u['nombre_completo'], 0, 1)) ?>
@@ -157,7 +157,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
                     <div class="text-dim text-xs mt-1">
                         <span class="text-accent opacity-80">@</span><?= htmlspecialchars($u['username']) ?> 
                         <span class="mx-1">•</span> 
-                        <span class="<?= $u['rol'] === 'admin' ? 'text-accent' : 'text-gold' ?> font-bold uppercase tracking-widest" style="font-size:0.65rem;">
+                        <span class="<?= $u['rol'] === 'admin' ? 'text-accent' : ($u['rol'] === 'cajero' ? 'text-success' : 'text-gold') ?> font-bold uppercase tracking-widest" style="font-size:0.65rem;">
                             <?= ucfirst($u['rol']) ?>
                         </span>
                     </div>

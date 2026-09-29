@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../includes/auth.php';
-requireAdmin();
+requireOrderAccess();
 
 header('Content-Type: application/json');
 

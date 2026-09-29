@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     nombre_completo VARCHAR(100) NOT NULL,
-    rol ENUM('admin', 'empleado') NOT NULL DEFAULT 'empleado',
+    rol ENUM('admin', 'empleado', 'cajero') NOT NULL DEFAULT 'empleado',
     activo TINYINT(1) DEFAULT 1,
     consultas_realizadas INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

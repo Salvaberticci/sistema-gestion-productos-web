@@ -1,7 +1,7 @@
 <?php 
 $currentModule = $currentModule ?? ''; 
 $pendingCount = 0;
-if (isAdmin()) {
+if (canViewOrders()) {
     try {
         $db = getDB();
         $pendingCount = $db->query("SELECT COUNT(*) FROM ordenes_venta WHERE estado = 'pendiente'")->fetchColumn();
@@ -29,7 +29,7 @@ if (isAdmin()) {
                 <span class="nav-icon">🛒</span><span class="nav-text">Órdenes de Venta</span>
             </a>
 
-            <?php if (isAdmin()): ?>
+            <?php if (canViewOrders()): ?>
             <a href="<?= APP_URL ?>/modules/ventas_pendientes/index.php" class="nav-item <?= $currentModule === 'ventas_pendientes' ? 'active' : '' ?>">
                 <span class="nav-icon">🔍</span>
                 <span class="nav-text">Órdenes Pendientes</span>
@@ -37,6 +37,9 @@ if (isAdmin()) {
                     <span class="nav-badge"><?= $pendingCount ?></span>
                 <?php endif; ?>
             </a>
+            <?php endif; ?>
+
+            <?php if (isAdmin()): ?>
             <a href="<?= APP_URL ?>/modules/inventario/index.php" class="nav-item <?= $currentModule === 'inventario' ? 'active' : '' ?>">
                 <span class="nav-icon">📦</span><span class="nav-text">Inventario</span>
             </a>
@@ -96,7 +99,7 @@ if (isAdmin()) {
             </button>
             <h1 class="topbar-title"><?= $pageTitle ?? 'Dashboard' ?></h1>
             <div class="topbar-actions">
-                <span class="topbar-role-badge <?= isAdmin() ? 'badge-admin' : 'badge-employee' ?>"><?= ucfirst($_SESSION['user_rol'] ?? '') ?></span>
+                <span class="topbar-role-badge <?= isAdmin() ? 'badge-admin' : (isCajero() ? 'badge-cashier' : 'badge-employee') ?>"><?= ucfirst($_SESSION['user_rol'] ?? '') ?></span>
             </div>
         </header>
         <div class="content-wrapper">

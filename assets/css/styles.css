@@ -387,6 +387,7 @@ img { max-width: 100%; height: auto; }
 
 .badge-admin { background: rgba(88,166,255,0.15); color: var(--color-accent); }
 .badge-employee { background: rgba(209,160,84,0.15); color: var(--color-gold); }
+.badge-cashier { background: rgba(46,160,67,0.15); color: #3fb950; }
 
 /* ===== MAIN CONTENT ===== */
 .main-content {

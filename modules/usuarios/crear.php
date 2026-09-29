@@ -13,6 +13,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pass = $_POST['password'] ?? '';
     $rol = $_POST['rol'] ?? 'empleado';
 
+    if (!in_array($rol, ['admin', 'empleado', 'cajero'], true)) {
+        $rol = 'empleado';
+    }
+
     if (empty($nombre) || empty($apellido) || empty($user) || empty($pass)) {
         $error = 'Por favor complete todos los campos requeridos (Nombre, Apellido, Usuario y Contraseña).';
     } else {
@@ -84,6 +88,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
             <label class="form-label">Rol del Sistema</label>
             <select name="rol" class="form-input" style="appearance: none; -webkit-appearance: none; cursor:pointer;">
                 <option value="empleado" <?= ($_POST['rol'] ?? '') === 'empleado' ? 'selected' : '' ?>>Empleado (Inventario e Impresión)</option>
+                <option value="cajero" <?= ($_POST['rol'] ?? '') === 'cajero' ? 'selected' : '' ?>>Cajero (Ventas y consulta de órdenes)</option>
                 <option value="admin" <?= ($_POST['rol'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrador (Acceso Total)</option>
             </select>
         </div>

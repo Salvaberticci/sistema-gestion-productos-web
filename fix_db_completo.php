@@ -8,6 +8,7 @@ echo "<h1>Reparación de Base de Datos</h1><pre>";
 $fixes = [
     "ALTER TABLE historial_busquedas MODIFY producto_cod VARCHAR(50) NULL",
     "ALTER TABLE historial_busquedas ADD COLUMN IF NOT EXISTS termino_busqueda VARCHAR(255) DEFAULT '' AFTER producto_cod",
+    "ALTER TABLE usuarios MODIFY rol ENUM('admin', 'empleado', 'cajero') NOT NULL DEFAULT 'empleado'",
 ];
 
 // Detectar y reparar FK de ordenes_detalles para agregar ON DELETE CASCADE

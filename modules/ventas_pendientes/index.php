@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/../../includes/auth.php';
-requireAdmin();
+requireOrderAccess();
 
 $pageTitle = 'Gestión de Órdenes Pendientes';
 $currentModule = 'ventas_pendientes';
+$canApprove = isAdmin();
 require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/navbar.php';
 ?>
@@ -72,6 +73,8 @@ require_once __DIR__ . '/../../includes/navbar.php';
 
 <script>
 window.APP_URL = '<?= APP_URL ?>';
+
+const CAN_APPROVE = <?= $canApprove ? 'true' : 'false' ?>;
 
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('orderSearch');
@@ -237,19 +240,19 @@ function renderOrderDetail(data, orderId) {
         title: `Orden #` + orderId,
         html: html,
         width: '600px',
-        showCancelButton: true,
-        showDenyButton: true,
-        confirmButtonText: '✅ Aprobar Venta',
+        showCancelButton: !CAN_APPROVE,
+        showDenyButton: CAN_APPROVE,
+        confirmButtonText: CAN_APPROVE ? '✅ Aprobar Venta' : 'Cerrar',
         denyButtonText: '❌ Rechazar',
         cancelButtonText: 'Cerrar',
-        confirmButtonColor: 'var(--color-success)',
+        confirmButtonColor: CAN_APPROVE ? 'var(--color-success)' : 'var(--color-accent)',
         denyButtonColor: 'var(--color-danger)',
         background: '#0D1117',
         color: '#ffffff'
     }).then((result) => {
-        if (result.isConfirmed) {
+        if (CAN_APPROVE && result.isConfirmed) {
             processOrder(orderId, 'aprobar');
-        } else if (result.isDenied) {
+        } else if (CAN_APPROVE && result.isDenied) {
             processOrder(orderId, 'rechazar');
         }
     });

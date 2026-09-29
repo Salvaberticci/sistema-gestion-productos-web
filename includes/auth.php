@@ -28,6 +28,22 @@ function isAdmin(): bool {
     return isset($_SESSION['user_rol']) && $_SESSION['user_rol'] === 'admin';
 }
 
+function isCajero(): bool {
+    return isset($_SESSION['user_rol']) && $_SESSION['user_rol'] === 'cajero';
+}
+
+function canViewOrders(): bool {
+    return isAdmin() || isCajero();
+}
+
+function requireOrderAccess(): void {
+    requireLogin();
+    if (!canViewOrders()) {
+        header('Location: ' . APP_URL . '/modules/ventas/index.php');
+        exit;
+    }
+}
+
 function login(string $username, string $password): bool {
     $db = getDB();
     $stmt = $db->prepare("SELECT * FROM usuarios WHERE username = ? AND activo = 1");

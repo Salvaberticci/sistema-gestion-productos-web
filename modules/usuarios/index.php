@@ -51,7 +51,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
                     </td>
                     <td><span class="text-dim">@</span><?= htmlspecialchars($u['username']) ?></td>
                     <td>
-                        <span class="topbar-role-badge <?= $u['rol'] === 'admin' ? 'badge-admin' : 'badge-employee' ?>">
+                        <span class="topbar-role-badge <?= $u['rol'] === 'admin' ? 'badge-admin' : ($u['rol'] === 'cajero' ? 'badge-cashier' : 'badge-employee') ?>">
                             <?= ucfirst($u['rol']) ?>
                         </span>
                     </td>
@@ -89,7 +89,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
     <!-- Cards Mobile -->
     <div class="product-cards p-3">
         <?php foreach ($usuarios as $u): ?>
-        <div class="card p-4 mb-3" style="border-left: 4px solid <?= $u['rol'] === 'admin' ? 'var(--color-accent)' : 'var(--color-gold)' ?>;">
+        <div class="card p-4 mb-3" style="border-left: 4px solid <?= $u['rol'] === 'admin' ? 'var(--color-accent)' : ($u['rol'] === 'cajero' ? '#3fb950' : 'var(--color-gold)') ?>;">
             <div class="flex items-center gap-4 mb-4">
                 <div class="user-avatar" style="width:50px; height:50px; font-size:1.25rem;">
                     <?= strtoupper(substr($u['nombre_completo'], 0, 1)) ?>
@@ -101,7 +101,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
                     <div class="text-dim text-sm">
                         <span class="text-accent opacity-80">@</span><?= htmlspecialchars($u['username']) ?> 
                         <span class="mx-1">•</span> 
-                        <span class="<?= $u['rol'] === 'admin' ? 'text-accent' : 'text-gold' ?> font-bold text-xs uppercase tracking-widest">
+                        <span class="<?= $u['rol'] === 'admin' ? 'text-accent' : ($u['rol'] === 'cajero' ? 'text-success' : 'text-gold') ?> font-bold text-xs uppercase tracking-widest">
                             <?= ucfirst($u['rol']) ?>
                         </span>
                     </div>
