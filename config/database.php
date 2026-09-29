@@ -1,19 +1,19 @@
 <?php
 /**
- * Credenciales por defecto (desarrollo / XAMPP).
- * En produccion, config/database.local.php sobreescribe estos valores y NO se
- * versiona, de modo que un `git pull` nunca puede romper la conexion real.
+ * Credenciales de produccion (opcionales). Este archivo NO se versiona, por
+ * lo que un `git pull` nunca puede romper la conexion real. Se carga primero
+ * para que sus valores prevailan sobre los de desarrollo.
  */
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'el_rebusque_web');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_CHARSET', 'utf8mb4');
-
-// Sobrescritura local (credenciales reales del servidor). Ver .gitignore.
 if (is_file(__DIR__ . '/database.local.php')) {
     require_once __DIR__ . '/database.local.php';
 }
+
+// Valores por defecto para desarrollo (XAMPP). Solo se definen si faltan.
+defined('DB_HOST')    || define('DB_HOST', 'localhost');
+defined('DB_NAME')    || define('DB_NAME', 'el_rebusque_web');
+defined('DB_USER')    || define('DB_USER', 'root');
+defined('DB_PASS')    || define('DB_PASS', '');
+defined('DB_CHARSET') || define('DB_CHARSET', 'utf8mb4');
 
 function getDB(): PDO {
     static $pdo = null;
