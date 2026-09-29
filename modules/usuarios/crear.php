@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pass = $_POST['password'] ?? '';
     $rol = $_POST['rol'] ?? 'empleado';
 
-    if (!in_array($rol, ['admin', 'empleado', 'cajero'], true)) {
+    if (!in_array($rol, rolesDisponibles(), true)) {
         $rol = 'empleado';
     }
 
@@ -87,10 +87,16 @@ require_once __DIR__ . '/../../includes/navbar.php';
         <div class="form-group">
             <label class="form-label">Rol del Sistema</label>
             <select name="rol" class="form-input" style="appearance: none; -webkit-appearance: none; cursor:pointer;">
-                <option value="empleado" <?= ($_POST['rol'] ?? '') === 'empleado' ? 'selected' : '' ?>>Empleado (Inventario e Impresión)</option>
-                <option value="cajero" <?= ($_POST['rol'] ?? '') === 'cajero' ? 'selected' : '' ?>>Cajero (Ventas y consulta de órdenes)</option>
-                <option value="admin" <?= ($_POST['rol'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrador (Acceso Total)</option>
+                <?php foreach (etiquetasRol() as $valor => $texto): ?>
+                    <?php if (!in_array($valor, rolesDisponibles(), true)) continue; ?>
+                    <option value="<?= $valor ?>" <?= ($_POST['rol'] ?? '') === $valor ? 'selected' : '' ?>><?= htmlspecialchars($texto) ?></option>
+                <?php endforeach; ?>
             </select>
+            <?php if (!in_array('cajero', rolesDisponibles(), true)): ?>
+                <p class="text-danger mt-1" style="font-size:0.75rem; font-weight:bold;">
+                    ⚠️ El rol Cajero no está disponible: la base de datos no permite modificar la tabla. Ejecuta fix_db_completo.php.
+                </p>
+            <?php endif; ?>
         </div>
 
         <button type="submit" class="btn btn-primary btn-lg mt-2">

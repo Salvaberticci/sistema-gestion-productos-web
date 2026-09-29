@@ -44,6 +44,47 @@ function requireOrderAccess(): void {
     }
 }
 
+/**
+ * Roles del sistema, en orden de menor a mayor privilegio.
+ */
+function etiquetasRol(): array {
+    return [
+        'empleado' => 'Empleado (Inventario e Impresión)',
+        'cajero'   => 'Cajero (Ventas y consulta de órdenes)',
+        'admin'    => 'Administrador (Acceso Total)',
+    ];
+}
+
+/**
+ * Roles que la base de datos acepta realmente.
+ * Si el ENUM de usuarios.rol todavia no incluye 'cajero', aplica la
+ * migracion: MySQL trunca en silencio los valores no contemplados y el
+ * usuario queda creado con el rol vacio.
+ */
+function rolesDisponibles(): array {
+    static $roles = null;
+    if ($roles !== null) {
+        return $roles;
+    }
+
+    $roles = array_keys(etiquetasRol());
+
+    try {
+        $db = getDB();
+        $col = $db->query("SHOW COLUMNS FROM usuarios LIKE 'rol'")->fetch();
+        $tipo = (string)($col['Type'] ?? '');
+
+        if ($tipo !== '' && stripos($tipo, "'cajero'") === false) {
+            $db->exec("ALTER TABLE usuarios MODIFY rol ENUM('admin', 'empleado', 'cajero') NOT NULL DEFAULT 'empleado'");
+        }
+    } catch (Exception $e) {
+        // Sin permisos DDL: no se ofrece el rol nuevo, pero el resto funciona
+        $roles = ['admin', 'empleado'];
+    }
+
+    return $roles;
+}
+
 function login(string $username, string $password): bool {
     $db = getDB();
     $stmt = $db->prepare("SELECT * FROM usuarios WHERE username = ? AND activo = 1");

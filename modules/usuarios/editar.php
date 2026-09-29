@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pass = $_POST['password'] ?? '';
     $rol = $_POST['rol'] ?? 'empleado';
 
-    if (!in_array($rol, ['admin', 'empleado', 'cajero'], true)) {
+    if (!in_array($rol, rolesDisponibles(), true)) {
         $rol = 'empleado';
     }
 
@@ -123,9 +123,10 @@ require_once __DIR__ . '/../../includes/navbar.php';
         <div class="form-group">
             <label class="form-label">Rol del Sistema</label>
             <select name="rol" class="form-input" style="appearance: none; -webkit-appearance: none; cursor:pointer;" <?= ($_SESSION['user_id'] == $id) ? 'disabled' : '' ?>>
-                <option value="empleado" <?= $u['rol'] === 'empleado' ? 'selected' : '' ?>>Empleado (Inventario e Impresión)</option>
-                <option value="cajero" <?= $u['rol'] === 'cajero' ? 'selected' : '' ?>>Cajero (Ventas y consulta de órdenes)</option>
-                <option value="admin" <?= $u['rol'] === 'admin' ? 'selected' : '' ?>>Administrador (Acceso Total)</option>
+                <?php foreach (etiquetasRol() as $valor => $texto): ?>
+                    <?php if (!in_array($valor, rolesDisponibles(), true)) continue; ?>
+                    <option value="<?= $valor ?>" <?= $u['rol'] === $valor ? 'selected' : '' ?>><?= htmlspecialchars($texto) ?></option>
+                <?php endforeach; ?>
             </select>
             <?php if ($_SESSION['user_id'] == $id): ?>
                 <input type="hidden" name="rol" value="<?= $u['rol'] ?>">

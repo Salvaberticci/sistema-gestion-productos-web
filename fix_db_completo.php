@@ -38,4 +38,20 @@ foreach ($fixes as $sql) {
     }
 }
 
+// Usuarios que quedaron con el rol vacio por el ENUM antiguo
+try {
+    $huerfanos = $db->query("SELECT id, username FROM usuarios WHERE rol IS NULL OR rol = ''")->fetchAll();
+    if ($huerfanos) {
+        $upd = $db->prepare("UPDATE usuarios SET rol = 'empleado' WHERE rol IS NULL OR rol = ''");
+        $upd->execute();
+        foreach ($huerfanos as $h) {
+            echo "✓ Usuario @{$h['username']} (id {$h['id']}) reparado: rol vacío → empleado\n";
+        }
+    } else {
+        echo "✓ Ningún usuario con el rol vacío\n";
+    }
+} catch (Exception $e) {
+    echo "ℹ {$e->getMessage()}\n";
+}
+
 echo "\n✅ Reparación completada. <a href='modules/inventario/index.php'>Volver al inventario</a></pre>";
