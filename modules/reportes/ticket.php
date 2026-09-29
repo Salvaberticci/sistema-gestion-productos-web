@@ -14,7 +14,7 @@ $stmt = $db->prepare("
     SELECT ov.*, c.nombre, c.apellido, c.cedula, c.telefono, u.nombre_completo as vendedor
     FROM ordenes_venta ov
     JOIN clientes c ON ov.cliente_id = c.id
-    JOIN usuarios u ON ov.usuario_id = u.id
+    LEFT JOIN usuarios u ON ov.usuario_id = u.id
     WHERE ov.id = ?
 ");
 $stmt->execute([$id]);
@@ -85,7 +85,7 @@ ob_start();
         <div><span><b>Cliente:</b></span> <span><?= htmlspecialchars($orden['nombre'].' '.$orden['apellido']) ?></span></div>
         <div><span><b>Cédula:</b></span> <span><?= htmlspecialchars($orden['cedula']) ?></span></div>
         <div style="border-bottom: 1px dashed #eee; margin: 1mm 0;"></div>
-        <div><span><b>Vendedor:</b></span> <span><?= htmlspecialchars($orden['vendedor']) ?></span></div>
+        <div><span><b>Vendedor:</b></span> <span><?= htmlspecialchars($orden['vendedor'] ?: 'Sin asignar') ?></span></div>
     </div>
 
     <table class="table">

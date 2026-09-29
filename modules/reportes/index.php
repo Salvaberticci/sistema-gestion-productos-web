@@ -51,15 +51,21 @@ $top_clientes = $stmt_top_cli->fetchAll();
 
 // 4. Historial Completo
 $stmt_historial = $db->prepare("
-    SELECT ov.*, c.nombre, c.apellido, u.nombre_completo as vendedor
+    SELECT ov.*, c.nombre, c.apellido, u.nombre_completo as atendio
     FROM ordenes_venta ov
     JOIN clientes c ON ov.cliente_id = c.id
-    JOIN usuarios u ON ov.usuario_id = u.id
+    LEFT JOIN usuarios u ON ov.usuario_id = u.id
     WHERE DATE(ov.created_at) BETWEEN ? AND ?
     ORDER BY ov.created_at DESC
 ");
 $stmt_historial->execute([$fecha_desde, $fecha_hasta]);
 $historial = $stmt_historial->fetchAll();
+foreach ($historial as &$h) {
+    if (empty($h['atendio'])) {
+        $h['atendio'] = 'Sin asignar';
+    }
+}
+unset($h);
 
 $pageTitle = 'Reportes y Cierres';
 $currentModule = 'reportes';
@@ -292,7 +298,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
                     <th>ID</th>
                     <th>Estado</th>
                     <th>Cliente</th>
-                    <th>Vendedor</th>
+                    <th>Atendió</th>
                     <th>Monto</th>
                     <th>Fecha</th>
                     <th style="text-align:right;">Ticket</th>
@@ -314,7 +320,9 @@ require_once __DIR__ . '/../../includes/navbar.php';
                             <?php endif; ?>
                         </td>
                         <td><span class="fw-bold"><?= htmlspecialchars($h['nombre'].' '.$h['apellido']) ?></span></td>
-                        <td><small class="text-dim"><?= htmlspecialchars($h['vendedor']) ?></small></td>
+                        <td>
+                            <div style="font-size:0.85rem; font-weight:600; color:var(--color-success);"><?= htmlspecialchars($h['atendio']) ?></div>
+                        </td>
                         <td class="fw-bold text-accent"><?= formatCurrency((float)$h['total_usd']) ?></td>
                         <td><small><?= date('d/m/y H:i', strtotime($h['created_at'])) ?></small></td>
                         <td style="text-align:right;">
@@ -350,7 +358,7 @@ require_once __DIR__ . '/../../includes/navbar.php';
                 </div>
                 
                 <div style="font-size:0.75rem; color:var(--color-text-dim);">
-                    Vendedor: <b><?= htmlspecialchars($h['vendedor']) ?></b>
+                    Atendió: <b style="color:var(--color-success);"><?= htmlspecialchars($h['atendio']) ?></b>
                 </div>
                 <div style="font-size:0.7rem; color:var(--color-text-dim); margin-top:2px;">
                     Fecha: <?= date('d/m/y H:i', strtotime($h['created_at'])) ?>

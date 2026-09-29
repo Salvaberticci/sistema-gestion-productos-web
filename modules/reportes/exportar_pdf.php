@@ -54,15 +54,21 @@ $top_clientes = $stmt_top_cli->fetchAll();
 
 // 4. Historial Detallado
 $stmt_historial = $db->prepare("
-    SELECT ov.*, c.nombre, c.apellido, u.nombre_completo as vendedor
+    SELECT ov.*, c.nombre, c.apellido, u.nombre_completo as atendio
     FROM ordenes_venta ov
     JOIN clientes c ON ov.cliente_id = c.id
-    JOIN usuarios u ON ov.usuario_id = u.id
+    LEFT JOIN usuarios u ON ov.usuario_id = u.id
     WHERE DATE(ov.created_at) BETWEEN ? AND ?
     ORDER BY ov.created_at DESC
 ");
 $stmt_historial->execute([$fecha_desde, $fecha_hasta]);
 $historial = $stmt_historial->fetchAll();
+foreach ($historial as &$h) {
+    if (empty($h['atendio'])) {
+        $h['atendio'] = 'Sin asignar';
+    }
+}
+unset($h);
 
 // Configurar Dompdf
 $options = new Options();
@@ -200,7 +206,7 @@ ob_start();
                 <th style="width: 8%;">ID</th>
                 <th style="width: 12%;">Estado</th>
                 <th style="width: 25%;">Cliente</th>
-                <th style="width: 20%;">Vendedor</th>
+                <th style="width: 20%;">Atendió</th>
                 <th style="width: 15%;" class="text-right">Monto USD</th>
                 <th style="width: 20%;" class="text-right">Fecha</th>
             </tr>
@@ -213,7 +219,7 @@ ob_start();
                         <?= strtoupper($h['estado']) ?>
                     </td>
                     <td><?= htmlspecialchars($h['nombre'].' '.$h['apellido']) ?></td>
-                    <td><?= htmlspecialchars($h['vendedor']) ?></td>
+                    <td><?= htmlspecialchars($h['atendio']) ?></td>
                     <td class="text-right text-accent">$<?= number_format($h['total_usd'], 2) ?></td>
                     <td class="text-right"><?= date('d/m/y H:i', strtotime($h['created_at'])) ?></td>
                 </tr>
